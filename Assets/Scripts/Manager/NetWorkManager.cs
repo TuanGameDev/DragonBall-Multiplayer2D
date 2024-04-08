@@ -8,8 +8,8 @@ using UnityEngine.EventSystems;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
+    private string playerName;
     public TextMeshProUGUI playerNameText;
-    public string playerName;
     public GameObject nameInput;
     void Start()
     {

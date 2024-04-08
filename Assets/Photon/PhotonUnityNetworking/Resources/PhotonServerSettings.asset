@@ -46,6 +46,11 @@ MonoBehaviour:
   - Initialize
   - InitializePlayer
   - UpdateNametag
+  - FlasDamage
+  - TakeDamage
+  - UpdateHpText
+  - UpdateHealthSlider
+  - UpdateHealthBar
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
