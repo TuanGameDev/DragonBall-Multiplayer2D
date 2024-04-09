@@ -418,6 +418,9 @@ MonoBehaviour:
   attackRange: 1
   attackDelay: 1
   warriorID: 0
+  playermask:
+    serializedVersion: 2
+    m_Bits: 128
   attackButton: {fileID: 6123099996113057093}
   cooldownAttack: {fileID: 725325368931257747}
   attackcooldownText: {fileID: 3586933056633868163}
@@ -432,7 +435,7 @@ MonoBehaviour:
   dead: 0
   coin: 0
   diamond: 0
-  playernameTag: {fileID: 8556119229720385343}
+  playernametagText: {fileID: 8556119229720385343}
   hpText: {fileID: 2153611849848663227}
   mpText: {fileID: 3686469429711474636}
   healthSlider: {fileID: 2640500305527355558}
@@ -2141,19 +2144,7 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 260495361221797935}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls:
-      - m_Target: {fileID: 5549890971538962318}
-        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
-        m_MethodName: Attack
-        m_Mode: 1
-        m_Arguments:
-          m_ObjectArgument: {fileID: 0}
-          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
-          m_IntArgument: 0
-          m_FloatArgument: 0
-          m_StringArgument: 
-          m_BoolArgument: 0
-        m_CallState: 2
+      m_Calls: []
 --- !u!1 &8737233917155897955
 GameObject:
   m_ObjectHideFlags: 0

@@ -23,6 +23,7 @@ public class PlayerController : MonoBehaviourPun
     private float lastAttackTime;
     public int warriorID;
     private bool isMine;
+    public LayerMask playermask;
     [Header("Tấn Công và SkillCooldown")]
     public Button attackButton;
     public Image cooldownAttack;
@@ -43,7 +44,7 @@ public class PlayerController : MonoBehaviourPun
     public int coin;
     public int diamond;
     [Header("UI")]
-    public TextMeshProUGUI playernameTag;
+    public TextMeshProUGUI playernametagText;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
     public Slider healthSlider;
@@ -73,6 +74,10 @@ public class PlayerController : MonoBehaviourPun
     }
     void Update()
     {
+        if(Input.GetKeyDown(KeyCode.Space))
+        {
+            Attack();
+        }
         if (!photonView.IsMine)
             return;
         MoveCharacter();
@@ -134,23 +139,14 @@ public class PlayerController : MonoBehaviourPun
     void Attack()
     {
         lastAttackTime = Time.time;
-        RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.right, attackRange);
+        Collider2D[] hitenemy = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playermask);
         initializeAttack(id, photonView.IsMine);
-
-        if (hit.collider != null && photonView.IsMine)
+        foreach (Collider2D enemy in hitenemy)
         {
-            if (hit.collider.gameObject.CompareTag("Enemy"))
-            {
-                DealDamage<Enemy>(hit.collider);
-            }
+            int randomDamage = Random.Range(damageMin, damageMax);
+            enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
         }
         aim.SetTrigger("Attack");
-    }
-    void DealDamage<T>(Collider2D collider) where T : MonoBehaviourPun
-    {
-        T enemy = collider.GetComponent<T>();
-        int randomDamage = Random.Range(damageMax, damageMin);
-        enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
     }
     void initializeAttack(int attackId, bool inMine)
     {
@@ -204,7 +200,7 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     public void UpdateNametag(string name)
     {
-        playernameTag.text = ""+name;
+        playernametagText.text = ""+name;
     }
     void UpdateHpText(int curHP, int maxHP, int curMP, int maxMP)
     {
