@@ -5,6 +5,7 @@ using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
+using System.Linq;
 
 public class PlayerController : MonoBehaviourPun
 {
@@ -14,6 +15,7 @@ public class PlayerController : MonoBehaviourPun
     public Player photonPlayer;
     public static PlayerController me;
     public int id;
+    public List<PlayerController> listOfPlayers;
     [Header("Tấn Công")]
     public Transform attackPoint;
     public int damageMin;
@@ -24,6 +26,10 @@ public class PlayerController : MonoBehaviourPun
     public int warriorID;
     private bool isMine;
     public LayerMask playermask;
+    [Header("Tự động Tấn Công")]
+    public Button autoattackButton;
+    private Transform currentTarget;
+    private bool isAutoAttacking = false;
     [Header("Tấn Công và SkillCooldown")]
     public Button attackButton;
     public Image cooldownAttack;
@@ -43,30 +49,93 @@ public class PlayerController : MonoBehaviourPun
     [Header("Vàng và Kim Cương")]
     public int coin;
     public int diamond;
+    [Header("XP và Level")]
+    public int playerLevel = 1;
+    public int currentExp;
+    public int maxExp = 500;
     [Header("UI")]
     public TextMeshProUGUI playernametagText;
+    public TextMeshProUGUI playerLevelText;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
-    public Slider healthSlider;
+    public Slider healthBar;
     public Canvas canvasHUD;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
         id = player.ActorNumber;
         photonPlayer = player;
-        if (GameManager.gamemanager.spawnPositions != null && id <= GameManager.gamemanager.spawnPositions.Length)
+        if (PlayerPrefs.HasKey("PlayerLevel"))
         {
-            transform.position = GameManager.gamemanager.spawnPositions[id - 1].position;
-            transform.rotation = GameManager.gamemanager.spawnPositions[id - 1].rotation;
+            playerLevel = PlayerPrefs.GetInt("PlayerLevel");
+        }
+        if (PlayerPrefs.HasKey("Coin"))
+        {
+            coin = PlayerPrefs.GetInt("Coin");
+        }
+        else
+        {
+            coin = 0;
+        }
+        if (PlayerPrefs.HasKey("Diamond"))
+        {
+            diamond = PlayerPrefs.GetInt("Diamond");
+        }
+        else
+        {
+            diamond = 0;
+        }
+        if (PlayerPrefs.HasKey("currentHP"))
+        {
+            currentHP = PlayerPrefs.GetInt("currentHP");
+        }
+        if (PlayerPrefs.HasKey("maxHP"))
+        {
+            maxHP = PlayerPrefs.GetInt("maxHP");
+        }
+        if (PlayerPrefs.HasKey("maxMP"))
+        {
+            maxMP = PlayerPrefs.GetInt("maxMP");
+        }
+        if (PlayerPrefs.HasKey("DF"))
+        {
+            def = PlayerPrefs.GetInt("DF");
+        }
+        if (PlayerPrefs.HasKey("CurrentExp"))
+        {
+            currentExp = PlayerPrefs.GetInt("CurrentExp");
+        }
+
+        if (PlayerPrefs.HasKey("MaxExp"))
+        {
+            maxExp = PlayerPrefs.GetInt("MaxExp");
+        }
+        if (PlayerPrefs.HasKey("DamageMin"))
+        {
+            damageMin = PlayerPrefs.GetInt("DamageMin");
+        }
+        if (PlayerPrefs.HasKey("DamageMax"))
+        {
+            damageMax = PlayerPrefs.GetInt("DamageMax");
         }
         UpdateNametag(player.NickName);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        UpdateHealthSlider(maxHP);
+        UpdateHealthSlider(currentHP);
+        if (player.IsLocal)
+            me = this;
+        else
+            rb.isKinematic = false;
+    }
+    private void Awake()
+    {
+        me = this;
     }
     void Start()
     {
         attackButton.onClick.AddListener(HandleAttackButtonClick);
+        autoattackButton.onClick.AddListener(ToggleAutoAttack);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
+        UpdateValue(maxMP);
         if (!photonView.IsMine)
         {
             canvasHUD.enabled = false;
@@ -74,9 +143,27 @@ public class PlayerController : MonoBehaviourPun
     }
     void Update()
     {
-        if(Input.GetKeyDown(KeyCode.Space))
+        if (isAutoAttacking)
         {
-            Attack();
+            if (currentTarget != null)
+            {
+                float distance = Vector2.Distance(transform.position, currentTarget.position);
+
+                if (distance > attackRange)
+                {
+                    MoveToTarget();
+                }
+                else if(Time.time - lastAttackTime > attackDelay)
+                {
+                    Attack();
+                    lastAttackTime = Time.time;
+                    StartCoroutine(StartCooldown());
+                }
+            }
+            else
+            {
+                FindNearestEnemy();
+            }
         }
         if (!photonView.IsMine)
             return;
@@ -92,23 +179,31 @@ public class PlayerController : MonoBehaviourPun
     }
     void MoveJoystick(float x, float y)
     {
-        rb.velocity = new Vector2(x, y) * moveSpeed;
-        if (x != 0 || y != 0)
+        if (!dead)
         {
-            aim.SetBool("Move", true);
-            if (x > 0)
+            rb.velocity = new Vector2(x * moveSpeed, y * moveSpeed);
+            if (x != 0 || y != 0)
             {
-                photonView.RPC("FlipRight", RpcTarget.All);
+                aim.SetBool("Move", true);
+                if (x > 0)
+                {
+                    if (!faceRight)
+                    {
+                        photonView.RPC("FlipRight", RpcTarget.All);
+                    }
+                }
+                else if (x < 0)
+                {
+                    if (faceRight)
+                    {
+                        photonView.RPC("FlipLeft", RpcTarget.All);
+                    }
+                }
             }
             else
             {
-                photonView.RPC("FlipLeft", RpcTarget.All);
-
+                aim.SetBool("Move", false);
             }
-        }
-        else
-        {
-            aim.SetBool("Move", false);
         }
     }
     [PunRPC]
@@ -154,6 +249,131 @@ public class PlayerController : MonoBehaviourPun
         this.isMine = inMine;
     }
     #endregion
+    #region Tự động Attack
+    private void OnTriggerEnter2D(Collider2D other)
+    {
+        if (isAutoAttacking && other.CompareTag("Enemy") && currentTarget == null)
+        {
+            currentTarget = other.transform;
+        }
+    }
+
+    private void OnTriggerExit2D(Collider2D other)
+    {
+        if (other.transform == currentTarget)
+        {
+            currentTarget = null;
+        }
+    }
+    private void MoveToTarget()
+    {
+        if (currentTarget != null)
+        {
+            Vector2 targetPosition = currentTarget.position - (transform.position - currentTarget.position).normalized * attackRange;
+            transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
+            if (targetPosition.x > transform.position.x && !faceRight)
+            {
+                if (!aim.GetBool("Move"))
+                {
+                    aim.SetBool("Move", true);
+                }
+                photonView.RPC("FlipRight", RpcTarget.All);
+            }
+            else if (targetPosition.x < transform.position.x && faceRight)
+            {
+                if (!aim.GetBool("Move"))
+                {
+                    aim.SetBool("Move", true);
+                }
+                photonView.RPC("FlipLeft", RpcTarget.All);
+            }
+            else
+            {
+                if (aim.GetBool("Move"))
+                {
+                    aim.SetBool("Move", false);
+                }
+            }
+        }
+    }
+    private void FindNearestEnemy()
+    {
+        GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
+
+        float nearestDistance = Mathf.Infinity;
+        Transform nearestTarget = null;
+
+        foreach (GameObject enemyObject in enemyObjects)
+        {
+            Transform enemyTransform = enemyObject.transform;
+            float distance = Vector2.Distance(transform.position, enemyTransform.position);
+
+            if (distance < nearestDistance)
+            {
+                nearestDistance = distance;
+                nearestTarget = enemyTransform;
+            }
+        }
+
+        currentTarget = nearestTarget;
+    }
+    private void ToggleAutoAttack()
+    {
+        isAutoAttacking = !isAutoAttacking;
+
+        if (!isAutoAttacking)
+        {
+            currentTarget = null;
+            aim.ResetTrigger("Attack");
+        }
+    }
+    #endregion
+    #region Level và XP
+    [PunRPC]
+    void UpdatePlayerLevel(int name)
+    {
+        playerLevelText.text ="Lv."+ "" + name;
+    }
+    [PunRPC]
+    void EarnExp(int xpAmount)
+    {
+        currentExp += xpAmount;
+        LevelUp();
+        photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
+    }
+    public void LevelUp()
+    {
+        while (currentExp >= maxExp)
+        {
+            currentExp -= maxExp;
+            maxExp = (int)(maxExp * 1.1f);
+            playerLevel++;
+            damageMin += 10;
+            damageMax += 10;
+            currentHP += 20;
+            maxHP += 20;
+            PlayerPrefs.SetInt("CurrentExp", currentExp);
+            PlayerPrefs.SetInt("MaxExp", maxExp);
+            PlayerPrefs.SetInt("PlayerLevel", playerLevel);
+            PlayerPrefs.SetInt("DamageMin", damageMin);
+            PlayerPrefs.SetInt("DamageMax", damageMax);
+            PlayerPrefs.SetInt("maxHP", maxHP);
+            PlayerPrefs.SetInt("currentHP", currentHP);
+            photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
+        }
+    }
+    public PlayerController GetPlayer(int playerID)
+    {
+        foreach (PlayerController player in listOfPlayers)
+        {
+            if (player.id == playerID)
+            {
+                return player;
+            }
+        }
+        return null;
+    }
+    #endregion
     #region Gizmos
     private void OnDrawGizmos()
     {
@@ -171,6 +391,7 @@ public class PlayerController : MonoBehaviourPun
             damageValue = 1;
         }
         currentHP -= damageValue;
+        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
         UpdateHealthSlider(currentHP);
         if (currentHP <= 0)
         {
@@ -180,7 +401,6 @@ public class PlayerController : MonoBehaviourPun
         {
             photonView.RPC("FlasDamage", RpcTarget.All);
         }
-        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     [PunRPC]
     void FlasDamage()
@@ -195,7 +415,20 @@ public class PlayerController : MonoBehaviourPun
     }
     void Die()
     {
-       
+        transform.position = new Vector3(0, 90, 0);
+        Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
+        StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
+    }
+    IEnumerator Spawn(Vector3 spawnPos, float timeToSpawn)
+    {
+        yield return new WaitForSeconds(timeToSpawn);
+        dead = false;
+        transform.position = spawnPos;
+        currentHP = maxHP;
+        currentMP = maxMP;
+        rb.isKinematic = false;
+        UpdateHealthSlider(currentHP);
+        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     [PunRPC]
     public void UpdateNametag(string name)
@@ -208,10 +441,14 @@ public class PlayerController : MonoBehaviourPun
         mpText.text = curMP + "/" + maxMP;
 
     }
+    public void UpdateValue(int maxVal)
+    {
+        maxHealthValue = maxVal;
+        healthBar.value = 1.0f;
+    }
     void UpdateHealthSlider(int heal)
     {
-        healthSlider.value = (float)heal / maxHealthValue;
-        healthSlider.value = 1.0f;
+        healthBar.value = (float)heal / maxHealthValue;
     }
     #endregion
     #region IEnumerator Attack và Skill

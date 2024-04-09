@@ -18,7 +18,7 @@ GameObject:
   - component: {fileID: 6086259464186023351}
   - component: {fileID: 2372534343930701877}
   m_Layer: 7
-  m_Name: Saibaman
+  m_Name: Fake
   m_TagString: Enemy
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -200,7 +200,7 @@ MonoBehaviour:
   sr: {fileID: 6754732073737209233}
   rb: {fileID: 7704219846661620291}
   aim: {fileID: 1064341912282042493}
-  enemyName: Saibaman
+  enemyName: Fake
   damage: 10
   chaseRange: 4
   attackRange: 2
