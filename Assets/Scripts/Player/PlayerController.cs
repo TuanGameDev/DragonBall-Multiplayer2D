@@ -27,6 +27,7 @@ public class PlayerController : MonoBehaviourPun
     private bool isMine;
     public LayerMask playermask;
     [Header("Tự động Tấn Công")]
+    public TextMeshProUGUI autoattackText;
     public Button autoattackButton;
     private Transform currentTarget;
     private bool isAutoAttacking = false;
@@ -58,6 +59,7 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI playerLevelText;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
+    public TextMeshProUGUI expText;
     public Slider healthBar;
     public Canvas canvasHUD;
     [PunRPC]
@@ -119,8 +121,10 @@ public class PlayerController : MonoBehaviourPun
             damageMax = PlayerPrefs.GetInt("DamageMax");
         }
         UpdateNametag(player.NickName);
+        UpdatePlayerLevel(playerLevel);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        UpdateHealthSlider(currentHP);
+        UpdateHealthSlider(maxHP);
+        UpdateExp(currentExp, maxExp, playerLevel);
         if (player.IsLocal)
             me = this;
         else
@@ -143,6 +147,9 @@ public class PlayerController : MonoBehaviourPun
     }
     void Update()
     {
+        if (!photonView.IsMine)
+            return;
+
         if (isAutoAttacking)
         {
             if (currentTarget != null)
@@ -153,7 +160,7 @@ public class PlayerController : MonoBehaviourPun
                 {
                     MoveToTarget();
                 }
-                else if(Time.time - lastAttackTime > attackDelay)
+                else if (Time.time - lastAttackTime > attackDelay)
                 {
                     Attack();
                     lastAttackTime = Time.time;
@@ -164,10 +171,13 @@ public class PlayerController : MonoBehaviourPun
             {
                 FindNearestEnemy();
             }
+            autoattackText.color = Color.blue;
         }
-        if (!photonView.IsMine)
-            return;
-        MoveCharacter();
+        else
+        {
+            MoveCharacter();
+            autoattackText.color = Color.white;
+        }
     }
     #region Di chuyển
     void MoveCharacter()
@@ -182,22 +192,18 @@ public class PlayerController : MonoBehaviourPun
         if (!dead)
         {
             rb.velocity = new Vector2(x * moveSpeed, y * moveSpeed);
+
             if (x != 0 || y != 0)
             {
                 aim.SetBool("Move", true);
-                if (x > 0)
+
+                if (x > 0 && !faceRight)
                 {
-                    if (!faceRight)
-                    {
-                        photonView.RPC("FlipRight", RpcTarget.All);
-                    }
+                    photonView.RPC("FlipRight", RpcTarget.All);
                 }
-                else if (x < 0)
+                else if (x < 0 && faceRight)
                 {
-                    if (faceRight)
-                    {
-                        photonView.RPC("FlipLeft", RpcTarget.All);
-                    }
+                    photonView.RPC("FlipLeft", RpcTarget.All);
                 }
             }
             else
@@ -271,27 +277,21 @@ public class PlayerController : MonoBehaviourPun
         {
             Vector2 targetPosition = currentTarget.position - (transform.position - currentTarget.position).normalized * attackRange;
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            if (targetPosition.x > transform.position.x && !faceRight)
+
+            if (targetPosition.x > transform.position.x)
             {
-                if (!aim.GetBool("Move"))
+                if (!faceRight)
                 {
+                    photonView.RPC("FlipRight", RpcTarget.All);
                     aim.SetBool("Move", true);
                 }
-                photonView.RPC("FlipRight", RpcTarget.All);
             }
-            else if (targetPosition.x < transform.position.x && faceRight)
+            else if (targetPosition.x < transform.position.x)
             {
-                if (!aim.GetBool("Move"))
+                if (faceRight)
                 {
+                    photonView.RPC("FlipLeft", RpcTarget.All);
                     aim.SetBool("Move", true);
-                }
-                photonView.RPC("FlipLeft", RpcTarget.All);
-            }
-            else
-            {
-                if (aim.GetBool("Move"))
-                {
-                    aim.SetBool("Move", false);
                 }
             }
         }
@@ -339,6 +339,7 @@ public class PlayerController : MonoBehaviourPun
     {
         currentExp += xpAmount;
         LevelUp();
+        UpdateExp(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
     }
     public void LevelUp()
@@ -359,8 +360,16 @@ public class PlayerController : MonoBehaviourPun
             PlayerPrefs.SetInt("DamageMax", damageMax);
             PlayerPrefs.SetInt("maxHP", maxHP);
             PlayerPrefs.SetInt("currentHP", currentHP);
+            UpdateExp(currentExp, maxExp, playerLevel);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
         }
+    }
+    public void UpdateExp(int currentExp, int maxExp, int level)
+    {
+
+        float percentage = (float)currentExp / maxExp * 100f;
+        string formattedPercentage = " LV." + level + "+" + percentage.ToString("0.00")+"%";
+        expText.text = formattedPercentage;
     }
     public PlayerController GetPlayer(int playerID)
     {

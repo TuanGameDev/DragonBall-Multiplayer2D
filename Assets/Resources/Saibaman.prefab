@@ -201,6 +201,7 @@ MonoBehaviour:
   rb: {fileID: 7704219846661620291}
   aim: {fileID: 1064341912282042493}
   enemyName: Saibaman
+  dead: Death
   damage: 10
   chaseRange: 4
   attackRange: 2
@@ -339,8 +340,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
+  m_sharedMaterial: {fileID: 7374927986402738804, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -816,8 +817,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: Saibaman
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
+  m_sharedMaterial: {fileID: 7374927986402738804, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []

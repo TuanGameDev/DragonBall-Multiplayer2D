@@ -201,9 +201,9 @@ GameObject:
   m_Component:
   - component: {fileID: 223510813}
   m_Layer: 0
-  m_Name: GameObject (1)
+  m_Name: SpawnPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
@@ -582,9 +582,9 @@ GameObject:
   m_Component:
   - component: {fileID: 1744596890}
   m_Layer: 0
-  m_Name: GameObject
+  m_Name: SpawnPoint
   m_TagString: Untagged
-  m_Icon: {fileID: 0}
+  m_Icon: {fileID: 5721338939258241955, guid: 0000000000000000d000000000000000, type: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1

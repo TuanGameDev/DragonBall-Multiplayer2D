@@ -12,6 +12,7 @@ public class PlayerSelection : MonoBehaviour
     public int selectedCharacter=0;
     public Button[] characterIcons;
     [Header("Popup")]
+    public GameObject playerPopup;
     public GameObject hanhtinhPopup;
     public static PlayerSelection playerselection;
     private void Awake()
@@ -24,6 +25,7 @@ public class PlayerSelection : MonoBehaviour
         {
             selectedCharacter = PlayerPrefs.GetInt("SelectedCharacter");
             playerPrefabName = playerModel[selectedCharacter].GetComponent<PlayerModelName>().playerName;
+            playerPopup.SetActive(false);
             hanhtinhPopup.SetActive(false);
         }
         else
@@ -61,5 +63,6 @@ public class PlayerSelection : MonoBehaviour
         PlayerPrefs.DeleteKey("maxHP");
         PlayerPrefs.DeleteKey("maxMP");
         PlayerPrefs.DeleteKey("DF");
+        PlayerPrefs.DeleteKey("Name");
     }
 }

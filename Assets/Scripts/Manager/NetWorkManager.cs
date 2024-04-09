@@ -4,15 +4,18 @@ using UnityEngine;
 using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
-using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
+    [Header("NetworkManager")]
     private string playerName;
+    public Button startgameButton;
     public TextMeshProUGUI playerNameText;
     public GameObject nameInput;
     void Start()
     {
+        startgameButton.interactable = false;
         if (PlayerPrefs.HasKey("Name"))
         {
             playerName = PlayerPrefs.GetString("Name");
@@ -42,18 +45,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         Debug.Log("Connected to master server");
         PhotonNetwork.JoinLobby();
+        startgameButton.interactable = true;
     }
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined room");
         ChangeScene();
     }
-   /* public override void OnRoomListUpdate(List<RoomInfo> updatedRoomList)
-    {
-        Debug.Log("Room list updated");
-        roomList = updatedRoomList;
-        UpdateRoomListUI();
-    }*/
     public void JoinSever()
     {
         RoomOptions roomOptions = new RoomOptions();
@@ -65,19 +63,4 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         PhotonNetwork.LoadLevel("Map");
     }
-    /*void UpdateRoomListUI()
-    {
-        foreach (GameObject button in roomButtons)
-        {
-            Destroy(button);
-        }
-        roomButtons.Clear();
-        foreach (RoomInfo room in roomList)
-        {
-            GameObject button = Instantiate(roomButtonPrefab, roomListContainer);
-            RoomButton joinRoomButton = button.GetComponent<RoomButton>();
-            joinRoomButton.Initialize(room.Name, room.PlayerCount);
-            roomButtons.Add(button);
-        }
-    }*/
 }

@@ -14,6 +14,7 @@ public class Enemy : MonoBehaviourPun
     public Animator aim;
     [Header("Quản lí")]
     public string enemyName;
+    public string dead="Death";
     private PlayerController[] playerInScene;
     private PlayerController targetPlayer;
     [Header("Tấn Công")]
@@ -168,6 +169,7 @@ public class Enemy : MonoBehaviourPun
         if (photonView != null && (photonView.IsMine || PhotonNetwork.IsMasterClient))
         {
             PhotonNetwork.Destroy(gameObject);
+            PhotonNetwork.Instantiate(dead, transform.position, Quaternion.identity);
         }
     }
 
