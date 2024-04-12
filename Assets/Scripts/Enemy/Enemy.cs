@@ -6,15 +6,17 @@ using UnityEditor;
 using TMPro;
 using UnityEngine.UI;
 using Photon.Realtime;
-
+using ExitGames.Client.Photon;
+using System;
 public class Enemy : MonoBehaviourPun
 {
     public SpriteRenderer sr;
     public Rigidbody2D rb;
     public Animator aim;
     [Header("Quản lí")]
+    public float activationDistance = 5f;
     public string enemyName;
-    public string dead="Death";
+    public string dead = "Death";
     private PlayerController[] playerInScene;
     private PlayerController targetPlayer;
     [Header("Tấn Công")]
@@ -33,22 +35,29 @@ public class Enemy : MonoBehaviourPun
     private float maxHealthValue;
     [Header("Kinh nghiệm")]
     public int curAttackerID;
+    private bool isMine;
     public int xpToGive;
+    [Header("Patrol")]
+    public bool isAttacking = false;
     [Header("UI")]
     public TextMeshProUGUI playernametagText;
     public TextMeshProUGUI hpText;
     public Slider healthBar;
+    public GameObject canvasHealh;
     private void Start()
     {
-        UpdateValue(maxHP);
-        UpdateNametag(enemyName);
-        UpdateHealthBar(currentHP);
         UpdateHpText(currentHP);
+        playernametagText.text = "" + enemyName;
+        currentHP = maxHP;
     }
     private void Update()
     {
         if (!PhotonNetwork.IsMasterClient)
             return;
+        if (!isAttacking)
+        {
+            photonView.RPC("Patrol", RpcTarget.All);
+        }
         if (targetPlayer != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.transform.position);
@@ -66,11 +75,13 @@ public class Enemy : MonoBehaviourPun
             if (dist < attackRange && Time.time - lastattackTime >= attackrate)
             {
                 Attack();
+                photonView.RPC("ResetlocalScale", RpcTarget.All);
             }
             else if (dist > attackRange)
             {
                 Vector3 dir = targetPlayer.transform.position - transform.position;
-                rb.velocity = dir.normalized * moveSpeed;
+                //rb.velocity = dir.normalized * moveSpeed;
+                photonView.RPC("FlipRight", RpcTarget.All);
                 aim.SetBool("Move", true);
             }
             else
@@ -79,7 +90,6 @@ public class Enemy : MonoBehaviourPun
                 aim.SetBool("Move", false);
             }
         }
-
         DetectPlayer();
     }
     #region Di chuyển và Tấn Công
@@ -113,6 +123,7 @@ public class Enemy : MonoBehaviourPun
                 {
                     if (dist > chaseRange)
                     {
+                        isAttacking = false;
                         targetPlayer = null;
                         aim.SetBool("Move", false);
                         rb.velocity = Vector2.zero;
@@ -120,6 +131,7 @@ public class Enemy : MonoBehaviourPun
                 }
                 else if (dist < chaseRange)
                 {
+                    isAttacking = true;
                     if (targetPlayer == null)
                     {
                         targetPlayer = player;
@@ -136,7 +148,6 @@ public class Enemy : MonoBehaviourPun
         currentHP -= damageAmount;
         curAttackerID = attackerId;
         UpdateHpText(currentHP);
-        UpdateHealthBar(currentHP);
         if (currentHP <= 0)
         {
             Die();
@@ -152,7 +163,7 @@ public class Enemy : MonoBehaviourPun
         IEnumerator DamageFlash()
         {
             sr.color = Color.red;
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.09f);
             sr.color = Color.white;
         }
     }
@@ -172,26 +183,66 @@ public class Enemy : MonoBehaviourPun
             PhotonNetwork.Instantiate(dead, transform.position, Quaternion.identity);
         }
     }
-
-    public void UpdateValue(int maxVal)
-    {
-        maxHealthValue = maxVal;
-        healthBar.value = 1.0f;
-    }
-    [PunRPC]
-    void UpdateNametag(string nametag)
-    {
-        playernametagText.text = "" + nametag;
-    }
     [PunRPC]
     void UpdateHpText(int curHP)
     {
         hpText.text = curHP.ToString();
     }
-    [PunRPC]
-    void UpdateHealthBar(int value)
+    private void OnTriggerEnter2D(Collider2D collision)
     {
-        healthBar.value = (float)value / maxHealthValue;
+        if (collision.CompareTag("Player"))
+        {
+            PhotonView photonView = collision.GetComponent<PhotonView>();
+            if (photonView != null && photonView.IsMine)
+            {
+                canvasHealh.SetActive(true);
+            }
+        }
+    }
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Player"))
+        {
+            PhotonView photonView = collision.GetComponent<PhotonView>();
+            if (photonView != null && photonView.IsMine)
+            {
+                canvasHealh.SetActive(false);
+            }
+        }
+        transform.localScale = new Vector2(-Mathf.Sign(rb.velocity.x), transform.localScale.y);
+    }
+    #endregion
+    #region Patrol Enemy
+    [PunRPC]
+    void Patrol()
+    {
+        if (isAttacking)
+        {
+            return;
+        }
+        if(targetPlayer)
+        {
+            return;
+        }
+        if (IsFacingRight())
+        {
+            aim.SetBool("Move", true);
+            rb.velocity = new Vector2(moveSpeed, 0f);
+        }
+        else
+        {
+            aim.SetBool("Move", true);
+            rb.velocity = new Vector2(-moveSpeed, 0f);
+        }
+    }
+    private bool IsFacingRight()
+    {
+        return transform.localScale.x > 0f;
+    }
+    [PunRPC]
+    void ResetlocalScale()
+    {
+        transform.localScale = new Vector2(1f, transform.localScale.y);
     }
     #endregion
     #region Gizmos

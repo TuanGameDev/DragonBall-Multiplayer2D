@@ -12,6 +12,7 @@ public class PlayerController : MonoBehaviourPun
     public Rigidbody2D rb;
     public Animator aim;
     public SpriteRenderer sr;
+    public SpriteRenderer[] srEffects;
     public Player photonPlayer;
     public static PlayerController me;
     public int id;
@@ -62,6 +63,8 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI expText;
     public Slider healthBar;
     public Canvas canvasHUD;
+    [Header("Hiệu Ứng Cấp Độ")]
+    public GameObject level2Popup;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
@@ -107,7 +110,6 @@ public class PlayerController : MonoBehaviourPun
         {
             currentExp = PlayerPrefs.GetInt("CurrentExp");
         }
-
         if (PlayerPrefs.HasKey("MaxExp"))
         {
             maxExp = PlayerPrefs.GetInt("MaxExp");
@@ -127,8 +129,6 @@ public class PlayerController : MonoBehaviourPun
         UpdateExp(currentExp, maxExp, playerLevel);
         if (player.IsLocal)
             me = this;
-        else
-            rb.isKinematic = false;
     }
     private void Awake()
     {
@@ -139,7 +139,7 @@ public class PlayerController : MonoBehaviourPun
         attackButton.onClick.AddListener(HandleAttackButtonClick);
         autoattackButton.onClick.AddListener(ToggleAutoAttack);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        UpdateValue(maxMP);
+        UpdateValue(maxHP);
         if (!photonView.IsMine)
         {
             canvasHUD.enabled = false;
@@ -171,12 +171,12 @@ public class PlayerController : MonoBehaviourPun
             {
                 FindNearestEnemy();
             }
-            autoattackText.color = Color.blue;
+            autoattackText.color = Color.green;
         }
         else
         {
             MoveCharacter();
-            autoattackText.color = Color.white;
+            autoattackText.color = Color.red;
         }
     }
     #region Di chuyển
@@ -215,6 +215,10 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     void FlipRight()
     {
+        for (int i = 0; i < srEffects.Length; i++)
+        {
+            srEffects[i].flipX = false;
+        }
         sr.flipX = false;
         faceRight = true;
         attackPoint.localPosition = new Vector3(Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
@@ -222,6 +226,10 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     void FlipLeft()
     {
+        for (int i = 0; i < srEffects.Length; i++)
+        {
+            srEffects[i].flipX = true;
+        }
         sr.flipX = true;
         faceRight = false;
         attackPoint.localPosition = new Vector3(-Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
@@ -243,11 +251,13 @@ public class PlayerController : MonoBehaviourPun
         Collider2D[] hitenemy = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playermask);
         initializeAttack(id, photonView.IsMine);
         foreach (Collider2D enemy in hitenemy)
-        {
-            int randomDamage = Random.Range(damageMin, damageMax);
-            enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
-        }
+            if (hitenemy != null && photonView.IsMine)
+            {
+                int randomDamage = Random.Range(damageMin, damageMax);
+                enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
+            }
         aim.SetTrigger("Attack");
+        aim.SetBool("Move", false);
     }
     void initializeAttack(int attackId, bool inMine)
     {
@@ -263,7 +273,6 @@ public class PlayerController : MonoBehaviourPun
             currentTarget = other.transform;
         }
     }
-
     private void OnTriggerExit2D(Collider2D other)
     {
         if (other.transform == currentTarget)
@@ -277,7 +286,6 @@ public class PlayerController : MonoBehaviourPun
         {
             Vector2 targetPosition = currentTarget.position - (transform.position - currentTarget.position).normalized * attackRange;
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-
             if (targetPosition.x > transform.position.x)
             {
                 if (!faceRight)
@@ -316,11 +324,23 @@ public class PlayerController : MonoBehaviourPun
         }
 
         currentTarget = nearestTarget;
+
+        if (currentTarget != null)
+        {
+            aim.SetBool("Move", true);
+        }
+        else
+        {
+            aim.SetBool("Move", false);
+        }
     }
     private void ToggleAutoAttack()
     {
         isAutoAttacking = !isAutoAttacking;
-
+        if(isAutoAttacking)
+        {
+            aim.SetBool("Move", true);
+        }
         if (!isAutoAttacking)
         {
             currentTarget = null;
@@ -341,6 +361,8 @@ public class PlayerController : MonoBehaviourPun
         LevelUp();
         UpdateExp(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
+        PlayerPrefs.SetInt("CurrentExp", currentExp);
+        PlayerPrefs.SetInt("MaxExp", maxExp);
     }
     public void LevelUp()
     {
@@ -408,22 +430,22 @@ public class PlayerController : MonoBehaviourPun
         }
         else
         {
-            photonView.RPC("FlasDamage", RpcTarget.All);
+            FlasDamage();
         }
     }
-    [PunRPC]
     void FlasDamage()
     {
         StartCoroutine(DamageFlash());
         IEnumerator DamageFlash()
         {
             sr.color = Color.red;
-            yield return new WaitForSeconds(0.05f);
+            yield return new WaitForSeconds(0.09f);
             sr.color = Color.white;
         }
     }
     void Die()
     {
+        isAutoAttacking = false;
         transform.position = new Vector3(0, 90, 0);
         Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
         StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
@@ -435,8 +457,7 @@ public class PlayerController : MonoBehaviourPun
         transform.position = spawnPos;
         currentHP = maxHP;
         currentMP = maxMP;
-        rb.isKinematic = false;
-        UpdateHealthSlider(currentHP);
+        UpdateHealthSlider(maxHP);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     [PunRPC]

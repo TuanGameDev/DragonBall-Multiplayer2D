@@ -9,10 +9,13 @@ using UnityEngine.UI;
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
     [Header("NetworkManager")]
+    public string nameMap;
     private string playerName;
     public Button startgameButton;
     public TextMeshProUGUI playerNameText;
     public GameObject nameInput;
+    [Header("Popup")]
+    public GameObject hanhtinhPopup;
     void Start()
     {
         startgameButton.interactable = false;
@@ -21,6 +24,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             playerName = PlayerPrefs.GetString("Name");
             PhotonNetwork.NickName = playerName;
             nameInput.SetActive(false);
+            hanhtinhPopup.SetActive(false);
             playerNameText.text = playerName;
         }
         else
@@ -61,6 +65,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     void ChangeScene()
     {
-        PhotonNetwork.LoadLevel("Map");
+        PhotonNetwork.LoadLevel(nameMap);
     }
 }

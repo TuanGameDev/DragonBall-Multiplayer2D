@@ -54,6 +54,11 @@ MonoBehaviour:
   - EarnExp
   - UpdatePlayerLevel
   - DestroyObject
+  - ToggleCanvas
+  - Patrol
+  - ResetlocalScale
+  - ToggleCanvasHealth
+  - ToggleCanvasHealh
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1
