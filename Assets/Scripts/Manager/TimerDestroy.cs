@@ -3,16 +3,15 @@ using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
 
-public class TimerDestroy : MonoBehaviourPun
+public class TimerDestroy : MonoBehaviour
 {
-    public float timer;
-    private void Start()
+    public float destroyTime;
+    void Start()
     {
-        photonView.RPC("DestroyObject",RpcTarget.All);
+        Invoke("DestroyObject", destroyTime);
     }
-    [PunRPC]
     void DestroyObject()
     {
-        Destroy(gameObject,timer);
+        Destroy(gameObject);
     }
 }

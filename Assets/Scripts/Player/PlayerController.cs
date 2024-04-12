@@ -61,10 +61,12 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
     public TextMeshProUGUI expText;
+    public GameObject panelmessagetext;
+    public TextMeshProUGUI messageText;
     public Slider healthBar;
     public Canvas canvasHUD;
     [Header("Hiệu Ứng Cấp Độ")]
-    public GameObject level2Popup;
+    public GameObject levelUp;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
@@ -340,11 +342,19 @@ public class PlayerController : MonoBehaviourPun
         if(isAutoAttacking)
         {
             aim.SetBool("Move", true);
+            panelmessagetext.SetActive(true);
+            messageText.color = Color.yellow;
+            messageText.text = " You have auto attack enabled ";
+            StartCoroutine(HideMessageAfterDelay(3));
         }
         if (!isAutoAttacking)
         {
             currentTarget = null;
             aim.ResetTrigger("Attack");
+            panelmessagetext.SetActive(true);
+            messageText.color = Color.red;
+            messageText.text = " You have turned off auto attack ";
+            StartCoroutine(HideMessageAfterDelay(3));
         }
     }
     #endregion
@@ -358,6 +368,17 @@ public class PlayerController : MonoBehaviourPun
     void EarnExp(int xpAmount)
     {
         currentExp += xpAmount;
+    /*    if (levelUp != null)
+        {
+            Vector3 popUpPosition = transform.position + new Vector3(0, 0.4f, 0);
+            GameObject instance = Instantiate(levelUp, popUpPosition, Quaternion.identity);
+            instance.GetComponentInChildren<TextMeshProUGUI>().text = "+" + xpAmount.ToString("N0") + " EXP ";
+            Animator animator = instance.GetComponentInChildren<Animator>();
+            if (xpAmount <= 1000)
+            {
+                animator.Play("normal");
+            }
+        }*/
         LevelUp();
         UpdateExp(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
@@ -384,6 +405,10 @@ public class PlayerController : MonoBehaviourPun
             PlayerPrefs.SetInt("currentHP", currentHP);
             UpdateExp(currentExp, maxExp, playerLevel);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
+            panelmessagetext.SetActive(true);
+            messageText.color = Color.green;
+            messageText.text = " You have leveled up LV." + playerLevel;
+            StartCoroutine(HideMessageAfterDelay(3f));
         }
     }
     public void UpdateExp(int currentExp, int maxExp, int level)
@@ -500,6 +525,12 @@ public class PlayerController : MonoBehaviourPun
         cooldownAttack.fillAmount = 0f;
         attackcooldownText.text = "0.0";
         attackcooldownText.gameObject.SetActive(false);
+    }
+    private IEnumerator HideMessageAfterDelay(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        messageText.text = string.Empty;
+        panelmessagetext.gameObject.SetActive(false);
     }
     #endregion
 }
