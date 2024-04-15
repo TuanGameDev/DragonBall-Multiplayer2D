@@ -59,6 +59,9 @@ MonoBehaviour:
   - ResetlocalScale
   - ToggleCanvasHealth
   - ToggleCanvasHealh
+  - ShowDamPopUp
+  - Diamond
+  - GetCoin
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

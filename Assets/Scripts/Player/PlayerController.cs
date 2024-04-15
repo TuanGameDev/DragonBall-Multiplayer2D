@@ -47,6 +47,7 @@ public class PlayerController : MonoBehaviourPun
     public Joystick joystick;
     public int moveSpeed;
     public bool faceRight = false;
+    private bool isFalling = false;
     public bool dead;
     [Header("Vàng và Kim Cương")]
     public int coin;
@@ -61,12 +62,16 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
     public TextMeshProUGUI expText;
-    public GameObject panelmessagetext;
+    public TextMeshProUGUI coinText;
+    public TextMeshProUGUI diamondText;
     public TextMeshProUGUI messageText;
     public Slider healthBar;
     public Canvas canvasHUD;
-    [Header("Hiệu Ứng Cấp Độ")]
+    [Header("Hiệu Ứng")]
+    public GameObject damPopUp;
     public GameObject levelUp;
+    [Header("Scipts")]
+    public PlayerUpGrade _playerUpgrade;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
@@ -127,21 +132,16 @@ public class PlayerController : MonoBehaviourPun
         UpdateNametag(player.NickName);
         UpdatePlayerLevel(playerLevel);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        UpdateHealthSlider(maxHP);
+        UpdateValue(maxHP);
+        currentHP = maxHP;
         UpdateExp(currentExp, maxExp, playerLevel);
         if (player.IsLocal)
             me = this;
-    }
-    private void Awake()
-    {
-        me = this;
     }
     void Start()
     {
         attackButton.onClick.AddListener(HandleAttackButtonClick);
         autoattackButton.onClick.AddListener(ToggleAutoAttack);
-        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        UpdateValue(maxHP);
         if (!photonView.IsMine)
         {
             canvasHUD.enabled = false;
@@ -149,6 +149,9 @@ public class PlayerController : MonoBehaviourPun
     }
     void Update()
     {
+        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
+        UpdateCoin(coin);
+        UpdateDiamond(diamond);
         if (!photonView.IsMine)
             return;
 
@@ -189,6 +192,7 @@ public class PlayerController : MonoBehaviourPun
         y = joystick.Vertical;
         MoveJoystick(x, y);
     }
+
     void MoveJoystick(float x, float y)
     {
         if (!dead)
@@ -212,6 +216,14 @@ public class PlayerController : MonoBehaviourPun
             {
                 aim.SetBool("Move", false);
             }
+        }
+        if (rb.velocity.y <0)
+        {
+            aim.SetBool("IsFalling", true);
+        }
+        else
+        {
+            aim.SetBool("IsFalling", false);
         }
     }
     [PunRPC]
@@ -260,6 +272,10 @@ public class PlayerController : MonoBehaviourPun
             }
         aim.SetTrigger("Attack");
         aim.SetBool("Move", false);
+        if(currentHP<=maxHP)
+        {
+            currentHP += 50;
+        }
     }
     void initializeAttack(int attackId, bool inMine)
     {
@@ -342,7 +358,7 @@ public class PlayerController : MonoBehaviourPun
         if(isAutoAttacking)
         {
             aim.SetBool("Move", true);
-            panelmessagetext.SetActive(true);
+            rb.gravityScale = 0f;
             messageText.color = Color.yellow;
             messageText.text = " You have auto attack enabled ";
             StartCoroutine(HideMessageAfterDelay(3));
@@ -350,8 +366,8 @@ public class PlayerController : MonoBehaviourPun
         if (!isAutoAttacking)
         {
             currentTarget = null;
+            rb.gravityScale = 20f;
             aim.ResetTrigger("Attack");
-            panelmessagetext.SetActive(true);
             messageText.color = Color.red;
             messageText.text = " You have turned off auto attack ";
             StartCoroutine(HideMessageAfterDelay(3));
@@ -368,17 +384,6 @@ public class PlayerController : MonoBehaviourPun
     void EarnExp(int xpAmount)
     {
         currentExp += xpAmount;
-    /*    if (levelUp != null)
-        {
-            Vector3 popUpPosition = transform.position + new Vector3(0, 0.4f, 0);
-            GameObject instance = Instantiate(levelUp, popUpPosition, Quaternion.identity);
-            instance.GetComponentInChildren<TextMeshProUGUI>().text = "+" + xpAmount.ToString("N0") + " EXP ";
-            Animator animator = instance.GetComponentInChildren<Animator>();
-            if (xpAmount <= 1000)
-            {
-                animator.Play("normal");
-            }
-        }*/
         LevelUp();
         UpdateExp(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
@@ -396,6 +401,8 @@ public class PlayerController : MonoBehaviourPun
             damageMax += 10;
             currentHP += 20;
             maxHP += 20;
+            _playerUpgrade.strengthPotential +=1;
+            PlayerPrefs.SetInt("Potential", _playerUpgrade.strengthPotential);
             PlayerPrefs.SetInt("CurrentExp", currentExp);
             PlayerPrefs.SetInt("MaxExp", maxExp);
             PlayerPrefs.SetInt("PlayerLevel", playerLevel);
@@ -405,7 +412,6 @@ public class PlayerController : MonoBehaviourPun
             PlayerPrefs.SetInt("currentHP", currentHP);
             UpdateExp(currentExp, maxExp, playerLevel);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
-            panelmessagetext.SetActive(true);
             messageText.color = Color.green;
             messageText.text = " You have leveled up LV." + playerLevel;
             StartCoroutine(HideMessageAfterDelay(3f));
@@ -447,8 +453,19 @@ public class PlayerController : MonoBehaviourPun
             damageValue = 1;
         }
         currentHP -= damageValue;
-        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
         UpdateHealthSlider(currentHP);
+        if (damPopUp != null)
+        {
+            Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
+            GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
+            instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageValue.ToString("N0") + " Hit ";
+            Animator animator = instance.GetComponentInChildren<Animator>();
+
+            if (damageValue <= 100000)
+            {
+                animator.Play("critical");
+            }
+        }
         if (currentHP <= 0)
         {
             Die();
@@ -457,6 +474,7 @@ public class PlayerController : MonoBehaviourPun
         {
             FlasDamage();
         }
+        UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     void FlasDamage()
     {
@@ -482,7 +500,8 @@ public class PlayerController : MonoBehaviourPun
         transform.position = spawnPos;
         currentHP = maxHP;
         currentMP = maxMP;
-        UpdateHealthSlider(maxHP);
+        rb.gravityScale = 20f;
+        UpdateHealthSlider(currentHP);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     [PunRPC]
@@ -504,6 +523,34 @@ public class PlayerController : MonoBehaviourPun
     void UpdateHealthSlider(int heal)
     {
         healthBar.value = (float)heal / maxHealthValue;
+    }
+    #endregion
+    #region Coin và Diamond
+    [PunRPC]
+    void GetCoin(int goldToGive)
+    {
+        coin += goldToGive;
+        PlayerPrefs.SetInt("Coin", coin);
+        messageText.text = " You have picked up the coin " + "+" + goldToGive.ToString("N0");
+        messageText.color = Color.yellow;
+        StartCoroutine(HideMessageAfterDelay(2f));
+    }
+    [PunRPC]
+    void Diamond(int diamondToGive)
+    {
+        diamond += diamondToGive;
+        PlayerPrefs.SetInt("Diamond", diamond);
+        messageText.text = " You have picked up the diamond " + diamondToGive.ToString("N0");
+        messageText.color = Color.yellow;
+        StartCoroutine(HideMessageAfterDelay(2f));
+    }
+    public void UpdateCoin(int coin)
+    {
+        coinText.text = "" + coin.ToString("N0");
+    }
+    public void UpdateDiamond(int diamond)
+    {
+        diamondText.text = "" + diamond.ToString("N0");
     }
     #endregion
     #region IEnumerator Attack và Skill
@@ -530,7 +577,6 @@ public class PlayerController : MonoBehaviourPun
     {
         yield return new WaitForSeconds(delay);
         messageText.text = string.Empty;
-        panelmessagetext.gameObject.SetActive(false);
     }
     #endregion
 }

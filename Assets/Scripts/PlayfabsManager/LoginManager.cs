@@ -5,16 +5,20 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-
 public class LoginManager : MonoBehaviour
 {
     [Header("Login/Register")]
-    [SerializeField] TMP_InputField loginUsernameInput;
-    [SerializeField] TMP_InputField loginPasswordInput;
-    [SerializeField] Toggle rememberMeToggle;
-    [SerializeField] TMP_InputField registerUsernameInput;
-    [SerializeField] TMP_InputField registerPasswordInput;
-    [SerializeField] private TextMeshProUGUI messageText;
+    public TMP_InputField loginUsernameInput;
+    public TMP_InputField loginPasswordInput;
+    public Toggle rememberMeToggle;
+    public TMP_InputField registerUsernameInput;
+    public TMP_InputField registerPasswordInput;
+    public TextMeshProUGUI messageText;
+    [Header("Popup")]
+    public GameObject loginPopup;
+    public GameObject registerPopup;
+    public GameObject loginmanagerPopup;
+    public GameObject playerselectionPopup;
     public static LoginManager instance;
     private void Awake()
     {
@@ -43,7 +47,6 @@ public class LoginManager : MonoBehaviour
             Username = username,
             Password = password
         };
-
         PlayFabClientAPI.LoginWithPlayFab(request, OnLoginSuccess, OnLoginFailure);
     }
     private void OnLoginSuccess(LoginResult result)
@@ -60,6 +63,7 @@ public class LoginManager : MonoBehaviour
             PlayerPrefs.DeleteKey("Username");
             PlayerPrefs.DeleteKey("Password");
         }
+        ShowPlayerSelectionPopup();
     }
     private void OnLoginFailure(PlayFabError error)
     {
@@ -107,6 +111,7 @@ public class LoginManager : MonoBehaviour
         messageText.text = "Sign Up Success!";
         messageText.color = Color.green;
         StartCoroutine(HideMessageAfterDelay(2f));
+        loginPopup.SetActive(true);
     }
 
     private void OnRegisterFailure(PlayFabError error)
@@ -120,8 +125,21 @@ public class LoginManager : MonoBehaviour
         yield return new WaitForSeconds(delay);
         messageText.text = string.Empty;
     }
-    public void DeleteSave()
+    #region Popup
+    public void ShowLoginPopup()
     {
-        PlayerPrefs.DeleteKey("RememberMe");
+        loginPopup.SetActive(true);
+        registerPopup.SetActive(false);
     }
+    public void ShowRegisterPopup()
+    {
+        loginPopup.SetActive(false);
+        registerPopup.SetActive(true);
+    }
+    public void ShowPlayerSelectionPopup()
+    {
+        loginmanagerPopup.SetActive(false);
+        playerselectionPopup.SetActive(true);
+    }
+    #endregion
 }

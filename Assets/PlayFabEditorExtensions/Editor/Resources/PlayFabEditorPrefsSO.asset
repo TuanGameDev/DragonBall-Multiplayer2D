@@ -15,10 +15,10 @@ MonoBehaviour:
   DevAccountEmail: hoangtuan18203@gmail.com
   DevAccountToken: jkkk78wprz7n3s1qrpwun3wpwecgm8jexec7ir88uqubraepqqaommnun981i93s6niuj589fxazjfpgj5w9hkd1ymqb887w5i5uw66ab8iip9pfke4g5rkqucwgc7ea1hw957an77aq69i6ywf7iyu39rgc6fsa7cjspwy3ecoo7gb9rj5cz1zoxx73jmuxwktqunrp
   AadAuthorization: 
-  SelectedStudio: 
+  SelectedStudio: My Game Studio
   SdkPath: Assets/PlayFabSDK
   EdExPath: 
   LocalCloudScriptPath: 
   PanelIsShown: 0
-  curMainMenuIdx: 0
+  curMainMenuIdx: 1
   curSubMenuIdx: 0

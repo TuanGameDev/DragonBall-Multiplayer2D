@@ -62,5 +62,6 @@ public class PlayerSelection : MonoBehaviour
         PlayerPrefs.DeleteKey("maxHP");
         PlayerPrefs.DeleteKey("DF");
         PlayerPrefs.DeleteKey("Name");
+        PlayerPrefs.DeleteKey("RememberMe");
     }
 }

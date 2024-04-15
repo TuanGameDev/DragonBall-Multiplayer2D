@@ -1,10 +1,8 @@
-﻿using System.Collections;
-using System.Collections.Generic;
+﻿using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 using Photon.Pun;
 using Photon.Realtime;
-using TMPro;
-using UnityEngine.UI;
 
 public class NetworkManager : MonoBehaviourPunCallbacks
 {
@@ -15,7 +13,15 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public TextMeshProUGUI playerNameText;
     public GameObject nameInput;
     [Header("Popup")]
+    public GameObject networkManagerPopup;
+    public GameObject loadingbarPopup;
     public GameObject hanhtinhPopup;
+    public static NetworkManager networkmanager;
+    private void Awake()
+    {
+        networkmanager = this;
+    }
+
     void Start()
     {
         startgameButton.interactable = false;
@@ -33,6 +39,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         }
         PhotonNetwork.ConnectUsingSettings();
     }
+
     public void OnPlayerNameChanged(TMP_InputField playerNameInput)
     {
         playerName = playerNameInput.text;
@@ -45,17 +52,20 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         PlayerPrefs.SetString("Name", playerName);
         PhotonNetwork.NickName = playerName;
     }
+
     public override void OnConnectedToMaster()
     {
         Debug.Log("Connected to master server");
         PhotonNetwork.JoinLobby();
         startgameButton.interactable = true;
     }
+
     public override void OnJoinedRoom()
     {
         Debug.Log("Joined room");
         ChangeScene();
     }
+
     public void JoinSever()
     {
         RoomOptions roomOptions = new RoomOptions();
@@ -63,8 +73,18 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.JoinOrCreateRoom("Sever1", roomOptions, TypedLobby.Default);
     }
-    void ChangeScene()
+
+    public  void ChangeScene()
     {
         PhotonNetwork.LoadLevel(nameMap);
     }
+
+    public void StartGame()
+    {
+        networkManagerPopup.SetActive(false);
+        loadingbarPopup.SetActive(true);
+    }
+
+    #region LoginManager
+    #endregion
 }

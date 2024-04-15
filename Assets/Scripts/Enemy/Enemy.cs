@@ -14,7 +14,6 @@ public class Enemy : MonoBehaviourPun
     public Rigidbody2D rb;
     public Animator aim;
     [Header("Quản lí")]
-    public float activationDistance = 5f;
     public string enemyName;
     public string dead = "Death";
     private PlayerController[] playerInScene;
@@ -37,12 +36,14 @@ public class Enemy : MonoBehaviourPun
     public int curAttackerID;
     private bool isMine;
     public int xpToGive;
+    [Header("ObjectToSpawnOnDeath")]
+    public string objectTospawnOnDeath;
     [Header("Patrol")]
     public bool isAttacking = false;
     [Header("UI")]
+    public GameObject damPopUp;
     public TextMeshProUGUI playernametagText;
     public TextMeshProUGUI hpText;
-    public Slider healthBar;
     public GameObject canvasHealh;
     private void Start()
     {
@@ -82,7 +83,7 @@ public class Enemy : MonoBehaviourPun
                 Vector3 dir = targetPlayer.transform.position - transform.position;
                 //rb.velocity = dir.normalized * moveSpeed;
                 photonView.RPC("FlipRight", RpcTarget.All);
-                aim.SetBool("Move", true);
+                //aim.SetBool("Move", true);
             }
             else
             {
@@ -148,6 +149,18 @@ public class Enemy : MonoBehaviourPun
         currentHP -= damageAmount;
         curAttackerID = attackerId;
         UpdateHpText(currentHP);
+        if (damPopUp != null)
+        {
+            Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
+            GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
+            instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
+            Animator animator = instance.GetComponentInChildren<Animator>();
+
+            if (damageAmount <= 100000)
+            {
+                animator.Play("normal");
+            }
+        }
         if (currentHP <= 0)
         {
             Die();
@@ -181,12 +194,14 @@ public class Enemy : MonoBehaviourPun
         {
             PhotonNetwork.Destroy(gameObject);
             PhotonNetwork.Instantiate(dead, transform.position, Quaternion.identity);
+            if (objectTospawnOnDeath != string.Empty)
+                PhotonNetwork.Instantiate(objectTospawnOnDeath, transform.position, Quaternion.identity);
         }
     }
     [PunRPC]
     void UpdateHpText(int curHP)
     {
-        hpText.text = curHP.ToString();
+        hpText.text = curHP.ToString("N0");
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
