@@ -16,7 +16,6 @@ public class PlayerController : MonoBehaviourPun
     public Player photonPlayer;
     public static PlayerController me;
     public int id;
-    public List<PlayerController> listOfPlayers;
     [Header("Tấn Công")]
     public Transform attackPoint;
     public int damageMin;
@@ -268,7 +267,7 @@ public class PlayerController : MonoBehaviourPun
             if (hitenemy != null && photonView.IsMine)
             {
                 int randomDamage = Random.Range(damageMin, damageMax);
-                enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
+                enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
             }
         aim.SetTrigger("Attack");
         aim.SetBool("Move", false);
@@ -390,6 +389,32 @@ public class PlayerController : MonoBehaviourPun
         PlayerPrefs.SetInt("CurrentExp", currentExp);
         PlayerPrefs.SetInt("MaxExp", maxExp);
     }
+    public PlayerController GetPlayer(int playerId)
+    {
+        PlayerController[] players = FindObjectsOfType<PlayerController>();
+
+        foreach (PlayerController player in players)
+        {
+            if (player.photonView.OwnerActorNr == playerId)
+            {
+                return player;
+            }
+        }
+
+        return null;
+    }
+
+    public PlayerController GetPlayer(GameObject playerObject)
+    {
+        PlayerController player = playerObject.GetComponent<PlayerController>();
+
+        if (player != null)
+        {
+            return player;
+        }
+
+        return null;
+    }
     public void LevelUp()
     {
         while (currentExp >= maxExp)
@@ -423,17 +448,6 @@ public class PlayerController : MonoBehaviourPun
         float percentage = (float)currentExp / maxExp * 100f;
         string formattedPercentage = " LV." + level + "+" + percentage.ToString("0.00")+"%";
         expText.text = formattedPercentage;
-    }
-    public PlayerController GetPlayer(int playerID)
-    {
-        foreach (PlayerController player in listOfPlayers)
-        {
-            if (player.id == playerID)
-            {
-                return player;
-            }
-        }
-        return null;
     }
     #endregion
     #region Gizmos

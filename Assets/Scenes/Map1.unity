@@ -221,7 +221,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 289560637}
-  enemyprefabPath: FideGold
+  enemyprefabPath: {fileID: 3036219654406734238, guid: c6d1815f5bd4d8448950f07314a723aa, type: 3}
   maxEnemies: 1
   spawnCheckTime: 5
   currentEnemies: []
@@ -271,7 +271,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 314751713}
-  enemyprefabPath: Janemba
+  enemyprefabPath: {fileID: 3036219654406734238, guid: f04df59855248bf49b93edf18685c1e8, type: 3}
   maxEnemies: 1
   spawnCheckTime: 5
   currentEnemies: []
@@ -526,7 +526,8 @@ MonoBehaviour:
   - {fileID: 1744596890}
   spawnPointMap: {fileID: 777835859}
   respawnTime: 5
-  currentSpawnIndex: 0
+  playersInGame: 0
+  players: []
   canvasHealh: {fileID: 0}
   MapPrefabs:
   - {fileID: 3779720749245881602, guid: c36edc455a65732469dbaf4e19cea021, type: 3}
@@ -639,7 +640,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 1337209054}
-  enemyprefabPath: Janemba
+  enemyprefabPath: {fileID: 3036219654406734238, guid: f04df59855248bf49b93edf18685c1e8, type: 3}
   maxEnemies: 1
   spawnCheckTime: 5
   currentEnemies: []
@@ -689,7 +690,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 1378665006}
-  enemyprefabPath: Janemba
+  enemyprefabPath: {fileID: 3036219654406734238, guid: f04df59855248bf49b93edf18685c1e8, type: 3}
   maxEnemies: 1
   spawnCheckTime: 5
   currentEnemies: []
@@ -847,7 +848,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   spawnPoint: {fileID: 1798151823}
-  enemyprefabPath: Janemba
+  enemyprefabPath: {fileID: 3036219654406734238, guid: f04df59855248bf49b93edf18685c1e8, type: 3}
   maxEnemies: 1
   spawnCheckTime: 5
   currentEnemies: []
@@ -1116,7 +1117,7 @@ Transform:
   m_GameObject: {fileID: 191392540869202727}
   serializedVersion: 2
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 4.470007, y: 4.0156603, z: 0}
+  m_LocalPosition: {x: -29.09998, y: 4.011571, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -1182,7 +1183,7 @@ Transform:
   m_GameObject: {fileID: 190580668835663285}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 4.47, y: 4, z: 0}
+  m_LocalPosition: {x: -29.1, y: 4, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children:

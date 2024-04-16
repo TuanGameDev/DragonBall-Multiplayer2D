@@ -1,14 +1,15 @@
 ﻿using UnityEngine;
 using Photon.Pun;
 using System.Linq;
+using System.Collections.Generic;
+using Photon.Realtime;
 
-public class GameManager : MonoBehaviourPun
+public class GameManager : MonoBehaviourPunCallbacks
 {
     [Header("GameManager")]
     public Transform[] spawnPoint;
     public Transform spawnPointMap;
     public float respawnTime;
-    public int currentSpawnIndex = 0;
     public static GameManager gamemanager;
     [Header("Loading Map")]
     public GameObject canvasHealh;
@@ -26,9 +27,8 @@ public class GameManager : MonoBehaviourPun
     }
     void SpawnPlayer()
     {
-        GameObject playerObject = PhotonNetwork.Instantiate(PlayerSelection.playerselection.playerPrefabName, spawnPoint[currentSpawnIndex].position, Quaternion.identity);
+        GameObject playerObject = PhotonNetwork.Instantiate(PlayerSelection.playerselection.playerPrefabName, spawnPoint[Random.Range(0,spawnPoint.Length)].position, Quaternion.identity);
         playerObject.GetComponent<PhotonView>().RPC("InitializePlayer", RpcTarget.AllBuffered, PhotonNetwork.LocalPlayer);
-        currentSpawnIndex = (currentSpawnIndex + 1) % spawnPoint.Length;
     }
     void SpawnMap()
     {
@@ -73,6 +73,5 @@ public class GameManager : MonoBehaviourPun
             Destroy(currentMapObject);
         }
         SpawnMap();
-        currentSpawnIndex = 0;
     }
 }

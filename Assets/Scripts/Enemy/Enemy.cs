@@ -47,7 +47,7 @@ public class Enemy : MonoBehaviourPun
     public GameObject canvasHealh;
     private void Start()
     {
-        UpdateHpText(currentHP);
+        photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
         playernametagText.text = "" + enemyName;
         currentHP = maxHP;
     }
@@ -148,7 +148,7 @@ public class Enemy : MonoBehaviourPun
     {
         currentHP -= damageAmount;
         curAttackerID = attackerId;
-        UpdateHpText(currentHP);
+        photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
         if (damPopUp != null)
         {
             Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
@@ -182,21 +182,10 @@ public class Enemy : MonoBehaviourPun
     }
     void Die()
     {
-        if (PlayerController.me != null)
-        {
-            PlayerController player = PlayerController.me.GetPlayer(curAttackerID);
-            if (player != null && player.photonView != null)
-            {
-                player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
-            }
-        }
-        if (photonView != null && (photonView.IsMine || PhotonNetwork.IsMasterClient))
-        {
-            PhotonNetwork.Destroy(gameObject);
-            PhotonNetwork.Instantiate(dead, transform.position, Quaternion.identity);
-            if (objectTospawnOnDeath != string.Empty)
-                PhotonNetwork.Instantiate(objectTospawnOnDeath, transform.position, Quaternion.identity);
-        }
+        PhotonNetwork.Destroy(gameObject);
+        PlayerController player = PlayerController.me.GetPlayer(curAttackerID);
+        player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
+
     }
     [PunRPC]
     void UpdateHpText(int curHP)

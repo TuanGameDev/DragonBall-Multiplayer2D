@@ -6,7 +6,7 @@ using System.Collections.Generic;
 public class EnemySpawner : MonoBehaviourPun
 {
     public Transform spawnPoint;
-    public string enemyprefabPath;
+    public GameObject enemyprefabPath;
     public float maxEnemies;
     public float spawnCheckTime;
     private float lastSpawnCheckTime;
@@ -32,7 +32,7 @@ public class EnemySpawner : MonoBehaviourPun
         }
         if (currentEnemies.Count >= maxEnemies)
             return;
-        GameObject enemy = PhotonNetwork.Instantiate(enemyprefabPath, spawnPoint.position, Quaternion.identity);
+        GameObject enemy = PhotonNetwork.Instantiate(enemyprefabPath.name, spawnPoint.position, Quaternion.identity);
         currentEnemies.Add(enemy);
     }
 }
