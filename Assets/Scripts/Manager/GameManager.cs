@@ -12,10 +12,9 @@ public class GameManager : MonoBehaviourPunCallbacks
     public float respawnTime;
     public static GameManager gamemanager;
     [Header("Loading Map")]
-    public GameObject canvasHealh;
     public GameObject[] MapPrefabs;
     public int currentMapIndex = 0;
-    public GameObject currentMapObject;
+    private GameObject currentMapObject;
     public void Awake()
     {
         gamemanager = this;
@@ -41,7 +40,7 @@ public class GameManager : MonoBehaviourPunCallbacks
             currentMapIndex++;
         }
     }
-    private void OnTriggerEnter2D(Collider2D collision)
+  /*  private void OnTriggerEnter2D(Collider2D collision)
     {
         if (collision.CompareTag("Player"))
         {
@@ -62,7 +61,7 @@ public class GameManager : MonoBehaviourPunCallbacks
                 canvasHealh.SetActive(false);
             }
         }
-    }
+    }*/
     public void ButtonMap(int current)
     {
         currentMapIndex = current;

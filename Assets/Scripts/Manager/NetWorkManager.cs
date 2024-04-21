@@ -19,7 +19,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public static NetworkManager networkmanager;
     private void Awake()
     {
-        networkmanager = this;
+        if (networkmanager != null && networkmanager != this)
+            gameObject.SetActive(false);
+        else
+        {
+            networkmanager = this;
+            DontDestroyOnLoad(gameObject);
+        }
     }
 
     void Start()
@@ -70,7 +76,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         RoomOptions roomOptions = new RoomOptions();
         roomOptions.MaxPlayers = 4;
-
         PhotonNetwork.JoinOrCreateRoom("Sever1", roomOptions, TypedLobby.Default);
     }
 

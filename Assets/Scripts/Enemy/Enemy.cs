@@ -31,7 +31,9 @@ public class Enemy : MonoBehaviourPun
     [Header("Máu")]
     public int currentHP;
     public int maxHP;
+    public float pushForce;
     private float maxHealthValue;
+    public Slider healthBar;
     [Header("Kinh nghiệm")]
     public int curAttackerID;
     private bool isMine;
@@ -44,12 +46,13 @@ public class Enemy : MonoBehaviourPun
     public GameObject damPopUp;
     public TextMeshProUGUI playernametagText;
     public TextMeshProUGUI hpText;
-    public GameObject canvasHealh;
+    public GameObject InfoPopup;
     private void Start()
     {
+        EnemyStatusInfo(maxHP);
         photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
+        photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
         playernametagText.text = "" + enemyName;
-        currentHP = maxHP;
     }
     private void Update()
     {
@@ -149,6 +152,44 @@ public class Enemy : MonoBehaviourPun
         currentHP -= damageAmount;
         curAttackerID = attackerId;
         photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
+        photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
+        if (damPopUp != null)
+        {
+            Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
+            GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
+            instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
+            Animator animator = instance.GetComponentInChildren<Animator>();
+
+            if (damageAmount <= 100000)
+            {
+                animator.Play("normal");
+            }
+            photonView.RPC("ShowDamPopUp", RpcTarget.Others, popUpPosition, damageAmount);
+        }
+        if (currentHP <= 0)
+        {
+            Die();
+        }
+        else
+        {
+            photonView.RPC("FlasDamage", RpcTarget.All);
+        }
+    }
+    [PunRPC]
+    void FlasDamage()
+    {
+        StartCoroutine(DamageFlash());
+        IEnumerator DamageFlash()
+        {
+            sr.color = Color.red;
+            yield return new WaitForSeconds(0.09f);
+            sr.color = Color.white;
+            aim.SetTrigger("Hit");
+        }
+    }
+    [PunRPC]
+    private void ShowDamPopUp(Vector3 position, int damageAmount)
+    {
         if (damPopUp != null)
         {
             Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
@@ -161,31 +202,22 @@ public class Enemy : MonoBehaviourPun
                 animator.Play("normal");
             }
         }
-        if (currentHP <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            FlasDamage();
-        }
-    }
-    void FlasDamage()
-    {
-        StartCoroutine(DamageFlash());
-        IEnumerator DamageFlash()
-        {
-            sr.color = Color.red;
-            yield return new WaitForSeconds(0.09f);
-            sr.color = Color.white;
-        }
     }
     void Die()
     {
-        PhotonNetwork.Destroy(gameObject);
         PlayerController player = PlayerController.me.GetPlayer(curAttackerID);
         player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
-
+        PhotonNetwork.Destroy(gameObject);
+    }
+    public void EnemyStatusInfo(int maxVal)
+    {
+        maxHealthValue = maxVal;
+        healthBar.value = 1.0f;
+    }
+    [PunRPC]
+    void UpdateHealthBar(int value)
+    {
+        healthBar.value = (float)value / maxHealthValue;
     }
     [PunRPC]
     void UpdateHpText(int curHP)
@@ -199,7 +231,7 @@ public class Enemy : MonoBehaviourPun
             PhotonView photonView = collision.GetComponent<PhotonView>();
             if (photonView != null && photonView.IsMine)
             {
-                canvasHealh.SetActive(true);
+                InfoPopup.SetActive(true);
             }
         }
     }
@@ -210,7 +242,7 @@ public class Enemy : MonoBehaviourPun
             PhotonView photonView = collision.GetComponent<PhotonView>();
             if (photonView != null && photonView.IsMine)
             {
-                canvasHealh.SetActive(false);
+                InfoPopup.SetActive(false);
             }
         }
         transform.localScale = new Vector2(-Mathf.Sign(rb.velocity.x), transform.localScale.y);

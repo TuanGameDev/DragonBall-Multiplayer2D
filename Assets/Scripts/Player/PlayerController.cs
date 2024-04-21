@@ -46,7 +46,6 @@ public class PlayerController : MonoBehaviourPun
     public Joystick joystick;
     public int moveSpeed;
     public bool faceRight = false;
-    private bool isFalling = false;
     public bool dead;
     [Header("Vàng và Kim Cương")]
     public int coin;
@@ -60,7 +59,6 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI playerLevelText;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
-    public TextMeshProUGUI expText;
     public TextMeshProUGUI coinText;
     public TextMeshProUGUI diamondText;
     public TextMeshProUGUI messageText;
@@ -69,8 +67,14 @@ public class PlayerController : MonoBehaviourPun
     [Header("Hiệu Ứng")]
     public GameObject damPopUp;
     public GameObject levelUp;
+    [Header("Hồi Sinh")]
+    public GameObject revivalButton;
+    public GameObject revivalPopup;
+    public GameObject reviveOnTheSpotPopup;
     [Header("Scipts")]
     public PlayerUpGrade _playerUpgrade;
+    public PlayerSkill _playerSkill;
+    public PlayerInfomation _playerinfomation;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
@@ -128,12 +132,13 @@ public class PlayerController : MonoBehaviourPun
         {
             damageMax = PlayerPrefs.GetInt("DamageMax");
         }
+        _playerinfomation.UpdateNametag(player.NickName);
+        _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
         UpdateNametag(player.NickName);
         UpdatePlayerLevel(playerLevel);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
         UpdateValue(maxHP);
         currentHP = maxHP;
-        UpdateExp(currentExp, maxExp, playerLevel);
         if (player.IsLocal)
             me = this;
     }
@@ -153,43 +158,18 @@ public class PlayerController : MonoBehaviourPun
         UpdateDiamond(diamond);
         if (!photonView.IsMine)
             return;
-
-        if (isAutoAttacking)
-        {
-            if (currentTarget != null)
-            {
-                float distance = Vector2.Distance(transform.position, currentTarget.position);
-
-                if (distance > attackRange)
-                {
-                    MoveToTarget();
-                }
-                else if (Time.time - lastAttackTime > attackDelay)
-                {
-                    Attack();
-                    lastAttackTime = Time.time;
-                    StartCoroutine(StartCooldown());
-                }
-            }
-            else
-            {
-                FindNearestEnemy();
-            }
-            autoattackText.color = Color.green;
-        }
-        else
-        {
-            MoveCharacter();
-            autoattackText.color = Color.red;
-        }
+        AutoAttack();
     }
     #region Di chuyển
-    void MoveCharacter()
+    public void MoveCharacter()
     {
-        float x, y;
-        x = joystick.Horizontal;
-        y = joystick.Vertical;
-        MoveJoystick(x, y);
+        if(!dead)
+        {
+            float x, y;
+            x = joystick.Horizontal;
+            y = joystick.Vertical;
+            MoveJoystick(x, y);
+        }
     }
 
     void MoveJoystick(float x, float y)
@@ -215,14 +195,6 @@ public class PlayerController : MonoBehaviourPun
             {
                 aim.SetBool("Move", false);
             }
-        }
-        if (rb.velocity.y <0)
-        {
-            aim.SetBool("IsFalling", true);
-        }
-        else
-        {
-            aim.SetBool("IsFalling", false);
         }
     }
     [PunRPC]
@@ -258,7 +230,7 @@ public class PlayerController : MonoBehaviourPun
             StartCoroutine(StartCooldown());
         }
     }
-    void Attack()
+    public void Attack()
     {
         lastAttackTime = Time.time;
         Collider2D[] hitenemy = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playermask);
@@ -283,6 +255,49 @@ public class PlayerController : MonoBehaviourPun
     }
     #endregion
     #region Tự động Attack
+    void AutoAttack()
+    {
+        if (isAutoAttacking)
+        {
+            if (currentTarget != null)
+            {
+                float distance = Vector2.Distance(transform.position, currentTarget.position);
+
+                if (distance > attackRange)
+                {
+                    MoveToTarget();
+                }
+                else if (Time.time - lastAttackTime > attackDelay)
+                {
+                    StartCoroutine(PerformSkillsInOrder());
+                    lastAttackTime = Time.time;
+                    StartCoroutine(StartCooldown());
+                }
+            }
+            else
+            {
+                FindNearestEnemy();
+            }
+            autoattackText.color = Color.green;
+        }
+        else
+        {
+            MoveCharacter();
+            autoattackText.color = Color.red;
+        }
+    }
+    private IEnumerator PerformSkillsInOrder()
+    {
+        Attack();
+
+        yield return new WaitForSeconds(2f);
+
+        _playerSkill.Skill2();
+
+        yield return new WaitForSeconds(2f);
+
+        _playerSkill.Skill3();
+    }
     private void OnTriggerEnter2D(Collider2D other)
     {
         if (isAutoAttacking && other.CompareTag("Enemy") && currentTarget == null)
@@ -384,10 +399,9 @@ public class PlayerController : MonoBehaviourPun
     {
         currentExp += xpAmount;
         LevelUp();
-        UpdateExp(currentExp, maxExp, playerLevel);
+        _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
         PlayerPrefs.SetInt("CurrentExp", currentExp);
-        PlayerPrefs.SetInt("MaxExp", maxExp);
     }
     public PlayerController GetPlayer(int playerId)
     {
@@ -435,19 +449,12 @@ public class PlayerController : MonoBehaviourPun
             PlayerPrefs.SetInt("DamageMax", damageMax);
             PlayerPrefs.SetInt("maxHP", maxHP);
             PlayerPrefs.SetInt("currentHP", currentHP);
-            UpdateExp(currentExp, maxExp, playerLevel);
+            _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
             messageText.color = Color.green;
             messageText.text = " You have leveled up LV." + playerLevel;
             StartCoroutine(HideMessageAfterDelay(3f));
         }
-    }
-    public void UpdateExp(int currentExp, int maxExp, int level)
-    {
-
-        float percentage = (float)currentExp / maxExp * 100f;
-        string formattedPercentage = " LV." + level + "+" + percentage.ToString("0.00")+"%";
-        expText.text = formattedPercentage;
     }
     #endregion
     #region Gizmos
@@ -504,9 +511,37 @@ public class PlayerController : MonoBehaviourPun
     {
         isAutoAttacking = false;
         transform.position = new Vector3(0, 90, 0);
+        revivalButton.SetActive(true);
+    }
+    public void Revival()
+    {
         Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
         StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
     }
+  /*  public void ReviveOnTheSpot(int amount)
+    {
+        if (coin >= amount)
+        {
+            coin -= amount;
+            coin -= 10;
+            transform.position = new Vector3(0, 0, 0);
+            currentHP = maxHP;
+            currentMP = maxMP;
+            UpdateHealthSlider(currentHP);
+            UpdateHpText(currentHP, maxHP, currentMP, maxMP);
+            revivalButton.SetActive(false);
+            Debug.Log("Revive.");
+        }
+        else
+        {
+            Debug.Log("Not enough coins to revive.");
+        }
+    }
+    public void ShowRevival()
+    {
+        revivalPopup.SetActive(true);
+        reviveOnTheSpotPopup.SetActive(true);
+    }*/
     IEnumerator Spawn(Vector3 spawnPos, float timeToSpawn)
     {
         yield return new WaitForSeconds(timeToSpawn);
@@ -515,6 +550,7 @@ public class PlayerController : MonoBehaviourPun
         currentHP = maxHP;
         currentMP = maxMP;
         rb.gravityScale = 20f;
+        revivalButton.SetActive(false);
         UpdateHealthSlider(currentHP);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
