@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-public class PlayerSkill : MonoBehaviour
+public class PlayerSkill : MonoBehaviourPun
 {
     [System.Serializable]
     public class CoolDown
@@ -26,12 +26,13 @@ public class PlayerSkill : MonoBehaviour
 
 
     [Header("Chưởng Kame")]
-    public GameObject kameRight;
-    public GameObject kameLeft;
+    public string kameRight;
+    public string kameLeft;
     public Transform fireKameRight;
     public Transform fireKameLeft;
     public Image cooldownSkill2;
     public TextMeshProUGUI skill2Text;
+    public bool canMove;
 
     [Header("Tái tạo năng lượng")]
     public int aimLayerIndex;
@@ -44,8 +45,10 @@ public class PlayerSkill : MonoBehaviour
     {
         GetPlayerIndex();
         InitializeCooldowns();
+        canMove = true;
     }
     #region Skill Player
+    #region Skill 1
     public void Skill1()
     {
         if (IsSkillReady("skill1"))
@@ -54,27 +57,53 @@ public class PlayerSkill : MonoBehaviour
             StartCooldown("skill1", skill1Cooldown.Delay);
         }
     }
+    #endregion
+    #region Skill 2
+    public void Skill2Object()
+    {
+        if (controller.faceRight)
+        {
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight, fireKameRight.transform.position, Quaternion.identity);
+            FireKame bulletScript = bulletObj.GetComponent<FireKame>();
+            bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+        }
+        else
+        {
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft, fireKameLeft.transform.position, Quaternion.identity);
+            FireKame bulletScript = bulletObj.GetComponent<FireKame>();
+            bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+        }
+        canMove = false;
+    }
     public void Skill2()
     {
         if (IsSkillReady("skill2"))
         {
             skill2Cooldown.LastAttackTime = Time.time;
-            if (controller.faceRight)
-            {
-               GameObject bulletObj = Instantiate(kameRight, fireKameRight.transform.position, Quaternion.identity);
-               FireKame bulletScript = bulletObj.GetComponent<FireKame>();
-               bulletScript.Initialized(controller.id, controller.photonView.IsMine);
-            }
-            else
-            {
-                GameObject bulletObj = Instantiate(kameLeft, fireKameLeft.transform.position, Quaternion.identity);
-                FireKame bulletScript = bulletObj.GetComponent<FireKame>();
-                bulletScript.Initialized(controller.id, controller.photonView.IsMine);
-            }
             controller.aim.SetTrigger("Skill_2");
             StartCooldown("skill2", skill2Cooldown.Delay);
         }
     }
+    public void StopMove()
+    {
+        canMove = true;
+    }
+    [PunRPC]
+    void KameRight()
+    {
+        controller.sr.flipX = false;
+        controller.faceRight = true;
+        fireKameRight.localPosition = new Vector3(Mathf.Abs(fireKameRight.localPosition.x), fireKameRight.localPosition.y, fireKameRight.localPosition.z);
+    }
+    [PunRPC]
+    void KameLeft()
+    {
+        controller.sr.flipX = true;
+        controller.faceRight = false;
+        fireKameRight.localPosition = new Vector3(-Mathf.Abs(fireKameRight.localPosition.x), fireKameRight.localPosition.y, fireKameRight.localPosition.z);
+    }
+    #endregion
+    #region Skill 3
     public void Skill3()
     {
         if (IsSkillReady("skill3"))
@@ -82,16 +111,13 @@ public class PlayerSkill : MonoBehaviour
             if (aimLayerIndex != -1)
             {
                 StartCoroutine(PlayIntroAndIdle());
-                controller.aim.SetLayerWeight(aimLayerIndex, 1f);
-                ReturnToBaseLayerAfterDelay(30f);
-                controller.currentHP += 200;
-                controller.maxHP += 200;
-                controller.damageMin += 100;
-                controller.damageMax += 100;
+                ReturnToBaseLayerAfterDelay(5f);
+                ChangeSkin();
             }
             StartCooldown("skill3", skill3Cooldown.Delay);
         }
     }
+    #endregion
     #endregion
     private IEnumerator PlayIntroAndIdle()
     {
@@ -101,17 +127,29 @@ public class PlayerSkill : MonoBehaviour
         {
             if (isPlayingIntro)
             {
-                controller.aim.Play("SSJ_Intro");
+                photonView.RPC("AimIntroPun", RpcTarget.All);
                 yield return new WaitForSeconds(3f);
                 isPlayingIntro = false;
             }
             else
             {
-                controller.aim.Play("SSJ_Idle");
+                photonView.RPC("AimIdlePun", RpcTarget.All);
                 yield return new WaitForSeconds(3f);
                 break;
             }
         }
+    }
+    [PunRPC]
+    void AimIdlePun()
+    {
+        controller.aim.Play("SSJ2_Idle");
+        controller.aim.Play("SSJ3_Idle");
+    }
+    [PunRPC]
+    void AimIntroPun()
+    {
+        controller.aim.Play("SSJ2_Intro");
+        controller.aim.Play("SSJ3_Intro");
     }
     private void ReturnToBaseLayerAfterDelay(float delay)
     {
@@ -130,16 +168,31 @@ public class PlayerSkill : MonoBehaviour
             skill3UI.SetActive(true);
             yield return null;
         }
-
-        controller.aim.SetLayerWeight(aimLayerIndex, 0f);
         controller.aim.Play(baseLayerIndex, 0, 0f);
+        controller.aim.SetLayerWeight(aimLayerIndex, 0f);
         skill3UI_Text.text = "0.0";
         skill3UI_Text.gameObject.SetActive(false);
         skill3UI.SetActive(false);
-        controller.currentHP -= 200;
-        controller.maxHP -= 200;
-        controller.damageMin -= 100;
-        controller.damageMax -= 100;
+        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
+        {
+            controller.currentHP -= 200;
+            controller.maxHP -= 200;
+            controller.damageMin -= 100;
+            controller.damageMax -= 100;
+            aimLayerIndex = 1;
+        }
+        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
+        {
+            controller.currentHP -= 500;
+            controller.maxHP -= 500;
+            controller.damageMin -= 300;
+            controller.damageMax -= 300;
+            aimLayerIndex = 1;
+        }
+        else
+        {
+            // Xử lý cho trường hợp khác (nếu cần)
+        }
     }
     #region Cooldown Skill
     private void InitializeCooldowns()
@@ -212,9 +265,47 @@ public class PlayerSkill : MonoBehaviour
         }
     }
     #endregion
+    #region Thay đổi hình dạng biến hình và cộng chỉ số
+    void ChangeSkin()
+    {
+        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
+        {
+            controller.currentHP += 200;
+            controller.maxHP += 200;
+            controller.damageMin += 100;
+            controller.damageMax += 100;
+            aimLayerIndex = 1;
+            controller.aim.SetLayerWeight(aimLayerIndex, 1f);
+        }
+        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
+        {
+            controller.currentHP += 500;
+            controller.maxHP += 500;
+            controller.damageMin += 300;
+            controller.damageMax += 300;
+            aimLayerIndex = 2;
+            controller.aim.SetLayerWeight(aimLayerIndex, 2f);
+        }
+        else
+        {
+            // Xử lý cho trường hợp khác (nếu cần)
+        }
+    }
     void GetPlayerIndex()
     {
-        aimLayerIndex = controller.aim.GetLayerIndex("SJJ_Blue");
+        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
+        {
+            aimLayerIndex = controller.aim.GetLayerIndex("Goku SJJ 2");
+        }
+        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
+        {
+            aimLayerIndex = controller.aim.GetLayerIndex("Goku SJJ 3");
+        }
+        else
+        {
+            // Xử lý cho trường hợp khác (nếu cần)
+        }
         baseLayerIndex = controller.aim.GetLayerIndex("Base Layer");
     }
+    #endregion
 }

@@ -6,6 +6,7 @@ using Photon.Pun;
 using Photon.Realtime;
 using TMPro;
 using System.Linq;
+using Unity.VisualScripting;
 
 public class PlayerController : MonoBehaviourPun
 {
@@ -174,7 +175,7 @@ public class PlayerController : MonoBehaviourPun
 
     void MoveJoystick(float x, float y)
     {
-        if (!dead)
+        if (!dead&&_playerSkill.canMove)
         {
             rb.velocity = new Vector2(x * moveSpeed, y * moveSpeed);
 
@@ -184,11 +185,13 @@ public class PlayerController : MonoBehaviourPun
 
                 if (x > 0 && !faceRight)
                 {
+                    _playerSkill.photonView.RPC("KameRight", RpcTarget.All);
                     photonView.RPC("FlipRight", RpcTarget.All);
                 }
                 else if (x < 0 && faceRight)
                 {
                     photonView.RPC("FlipLeft", RpcTarget.All);
+                    _playerSkill.photonView.RPC("KameLeft", RpcTarget.All);
                 }
             }
             else
@@ -243,10 +246,10 @@ public class PlayerController : MonoBehaviourPun
             }
         aim.SetTrigger("Attack");
         aim.SetBool("Move", false);
-        if(currentHP<=maxHP)
+       /* if(currentHP<=maxHP)
         {
             currentHP += 50;
-        }
+        }*/
     }
     void initializeAttack(int attackId, bool inMine)
     {
@@ -290,11 +293,7 @@ public class PlayerController : MonoBehaviourPun
     {
         Attack();
 
-        yield return new WaitForSeconds(2f);
-
-        _playerSkill.Skill2();
-
-        yield return new WaitForSeconds(2f);
+        yield return new WaitForSeconds(3f);
 
         _playerSkill.Skill3();
     }
@@ -385,6 +384,7 @@ public class PlayerController : MonoBehaviourPun
             messageText.color = Color.red;
             messageText.text = " You have turned off auto attack ";
             StartCoroutine(HideMessageAfterDelay(3));
+          _playerSkill.canMove = true;
         }
     }
     #endregion
@@ -511,7 +511,9 @@ public class PlayerController : MonoBehaviourPun
     {
         isAutoAttacking = false;
         transform.position = new Vector3(0, 90, 0);
-        revivalButton.SetActive(true);
+        Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
+        StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
+        //revivalButton.SetActive(true);
     }
     public void Revival()
     {

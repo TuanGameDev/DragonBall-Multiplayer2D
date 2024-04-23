@@ -12,32 +12,37 @@ public class FireKame : MonoBehaviourPun
     public int increaseAttack;
     private int attackId;
     private bool isMine;
-    // Start is called before the first frame update
+
     void Start()
     {
-        if(PlayerPrefs.HasKey("DamageMax"))
+        if (PlayerPrefs.HasKey("DamageMax"))
         {
-            damage = PlayerPrefs.GetInt("DamageMax")* increaseAttack;
+            damage = PlayerPrefs.GetInt("DamageMax") * increaseAttack;
         }
         rb = GetComponent<Rigidbody2D>();
-        Destroy(gameObject, 2);
+        Invoke("DestroyObject", 1);
     }
 
-    // Update is called once per frame
     void Update()
     {
         rb.velocity = moveDirection * speed;
     }
+
     private void OnTriggerEnter2D(Collider2D other)
     {
-        if(other.tag==("Enemy")&&isMine)
+        if (other.CompareTag("Enemy") && isMine)
         {
             Enemy enemy = other.GetComponent<Enemy>();
-            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient,this.attackId,damage);
-            Destroy(gameObject);
+            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
+            photonView.RPC("DestroyObject", RpcTarget.MasterClient);
         }
     }
-    public void Initialized(int attackId,bool isMine)
+    [PunRPC]
+    void DestroyObject()
+    {
+        Destroy(gameObject);
+    }
+    public void Initialized(int attackId, bool isMine)
     {
         this.attackId = attackId;
         this.isMine = isMine;

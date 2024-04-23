@@ -1417,6 +1417,7 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8302082458464525131}
+  - {fileID: 7180542739091219815}
   - {fileID: 540280389162678337}
   - {fileID: 6009257447650471321}
   - {fileID: 1830636769220701056}
@@ -1463,12 +1464,12 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 21300000, guid: da91ba86837422741a4e68ae2454f7cf, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 9e545bc771dda734b8ec1935b01a0fa3, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
   m_FlipX: 0
   m_FlipY: 0
   m_DrawMode: 0
-  m_Size: {x: 2.4375, y: 3.625}
+  m_Size: {x: 0.37, y: 0.61}
   m_AdaptiveModeThreshold: 0.5
   m_SpriteTileMode: 0
   m_WasSpriteAssigned: 1
@@ -1537,8 +1538,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.56, y: 2.32}
-    newSize: {x: 2.4375, y: 3.625}
+    oldSize: {x: 1.24, y: 2.12}
+    newSize: {x: 0.37, y: 0.61}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -1582,8 +1583,8 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 1.56, y: 2.32}
-    newSize: {x: 2.4375, y: 3.625}
+    oldSize: {x: 1.24, y: 2.12}
+    newSize: {x: 0.37, y: 0.61}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
     adaptiveTiling: 0
@@ -1716,17 +1717,18 @@ MonoBehaviour:
     Delay: 5
     LastAttackTime: 0
   skill3Cooldown:
-    Delay: 30
+    Delay: 10
     LastAttackTime: 0
   controller: {fileID: 5549890971538962318}
   cooldownSkill1: {fileID: 725325368931257747}
   skill1Text: {fileID: 3586933056633868163}
-  kameRight: {fileID: 5595976573367658650, guid: 0837df97fa1be8a4cbd59ea211ade270, type: 3}
-  kameLeft: {fileID: 3865039217990059473, guid: 1a8f0d0928f2ef54aa358502dd8d15e3, type: 3}
-  fireKameRight: {fileID: 8302082458464525131}
-  fireKameLeft: {fileID: 8302082458464525131}
+  kameRight: KameGoku_Right
+  kameLeft: KameGoku_Left
+  fireKameRight: {fileID: 7180542739091219815}
+  fireKameLeft: {fileID: 7180542739091219815}
   cooldownSkill2: {fileID: 6655969265617556933}
   skill2Text: {fileID: 7333431701933403056}
+  canMove: 0
   aimLayerIndex: 0
   baseLayerIndex: 0
   cooldownSkill3: {fileID: 2074924948461915731}
@@ -1795,13 +1797,15 @@ MonoBehaviour:
     SynchronizeType: 1
     Name: Attack
   - Type: 9
-    SynchronizeType: 0
+    SynchronizeType: 1
     Name: Skill_2
   m_SynchronizeLayers:
   - SynchronizeType: 1
     LayerIndex: 0
   - SynchronizeType: 1
     LayerIndex: 1
+  - SynchronizeType: 1
+    LayerIndex: 2
 --- !u!1 &835314322700015186
 GameObject:
   m_ObjectHideFlags: 0
@@ -9584,8 +9588,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 292, y: 15}
-  m_SizeDelta: {x: 100, y: 151.0524}
+  m_AnchoredPosition: {x: 289.6, y: 31.164}
+  m_SizeDelta: {x: 100, y: 169.1803}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &5112008265934674561
 CanvasRenderer:
@@ -9615,7 +9619,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 21300000, guid: c997a17a45a85204986264b2a9e6353c, type: 3}
+  m_Sprite: {fileID: 21300000, guid: 0c681b49a603f0644b0684a1d67705b5, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -14797,6 +14801,37 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!1 &7687656746451884529
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7180542739091219815}
+  m_Layer: 0
+  m_Name: KamePoint
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7180542739091219815
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7687656746451884529}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 11.84, y: 0.01, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9135296887758802707}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7821701526472886633
 GameObject:
   m_ObjectHideFlags: 0
