@@ -29,8 +29,8 @@ public class PlayerUpGrade : MonoBehaviour
     {
         UpdateTextPotential(strengthPotential);
         UpdateTextAttack(_playercontroller.damageMax);
-        UpdateTextHp(_playercontroller.currentHP);
-        UpdateTextMp(_playercontroller.currentMP);
+        UpdateTextHp(_playercontroller.maxHP);
+        UpdateTextMp(_playercontroller.maxMP);
         UpdateTextDf(_playercontroller.def);
     }
     #region Upgrade

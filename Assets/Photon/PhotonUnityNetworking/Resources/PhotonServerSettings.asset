@@ -66,6 +66,7 @@ MonoBehaviour:
   - AimIntroPun
   - KameLeft
   - KameRight
+  - ItemPickedUp
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

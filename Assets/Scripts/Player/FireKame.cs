@@ -20,7 +20,7 @@ public class FireKame : MonoBehaviourPun
             damage = PlayerPrefs.GetInt("DamageMax") * increaseAttack;
         }
         rb = GetComponent<Rigidbody2D>();
-        Invoke("DestroyObject", 1);
+        Invoke("DestroyObject", 2);
     }
 
     void Update()
@@ -34,7 +34,7 @@ public class FireKame : MonoBehaviourPun
         {
             Enemy enemy = other.GetComponent<Enemy>();
             enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
-            photonView.RPC("DestroyObject", RpcTarget.MasterClient);
+            //photonView.RPC("DestroyObject", RpcTarget.MasterClient);
         }
     }
     [PunRPC]

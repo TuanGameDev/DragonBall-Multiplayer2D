@@ -16,7 +16,7 @@ public class PlayerInfomation : MonoBehaviourPun
     public TextMeshProUGUI attackText;
     public TextMeshProUGUI defText;
     public PlayerController _playercontroller;
-    private void Start()
+    private void Update()
     {
         hpText.text = " HP: " +  _playercontroller.currentHP + "/" + _playercontroller.maxHP;
         mpText.text = " MP: " +  _playercontroller.currentMP + "/" + _playercontroller.maxMP;

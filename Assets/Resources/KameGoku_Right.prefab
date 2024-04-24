@@ -175,7 +175,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   speed: 0
   moveDirection: {x: 1, y: 0}
-  damage: 0
+  damage: 100
   increaseAttack: 3
 --- !u!114 &-6062886538053116976
 MonoBehaviour:

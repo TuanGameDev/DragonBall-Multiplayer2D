@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviourPun
     public Player photonPlayer;
     public static PlayerController me;
     public int id;
+    public List<Item> equipment = new List<Item>();
     [Header("Tấn Công")]
     public Transform attackPoint;
     public int damageMin;
@@ -256,6 +257,34 @@ public class PlayerController : MonoBehaviourPun
         this.warriorID = attackId;
         this.isMine = inMine;
     }
+    #region cộng trang bị từ inventory cho Nhân Vật
+    public void AddDamage(int damage,int health,int mana,int df)
+    {
+        damageMax += damage;
+        maxHP += health;
+        maxMP += mana;
+        def += df;
+    }
+    public void RemoveDamage(int value)
+    {
+        damageMax -= value;
+    }
+
+    public void RemoveHP(int value)
+    {
+        maxHP -= value;
+    }
+
+    public void RemoveMP(int value)
+    {
+        maxMP -= value;
+    }
+
+    public void RemoveDefense(int value)
+    {
+        def -= value;
+    }
+    #endregion
     #endregion
     #region Tự động Attack
     void AutoAttack()
