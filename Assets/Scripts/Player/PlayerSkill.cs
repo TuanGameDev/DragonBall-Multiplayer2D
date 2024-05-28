@@ -175,18 +175,10 @@ public class PlayerSkill : MonoBehaviourPun
         skill3UI.SetActive(false);
         if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
         {
-            controller.currentHP -= 200;
-            controller.maxHP -= 200;
-            controller.damageMin -= 100;
-            controller.damageMax -= 100;
             aimLayerIndex = 1;
         }
         else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
         {
-            controller.currentHP -= 500;
-            controller.maxHP -= 500;
-            controller.damageMin -= 300;
-            controller.damageMax -= 300;
             aimLayerIndex = 1;
         }
         else
@@ -270,19 +262,11 @@ public class PlayerSkill : MonoBehaviourPun
     {
         if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
         {
-            controller.currentHP += 200;
-            controller.maxHP += 200;
-            controller.damageMin += 100;
-            controller.damageMax += 100;
             aimLayerIndex = 1;
             controller.aim.SetLayerWeight(aimLayerIndex, 1f);
         }
         else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
         {
-            controller.currentHP += 500;
-            controller.maxHP += 500;
-            controller.damageMin += 300;
-            controller.damageMax += 300;
             aimLayerIndex = 2;
             controller.aim.SetLayerWeight(aimLayerIndex, 2f);
         }

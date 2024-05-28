@@ -129,23 +129,23 @@ public class PlayerUpGrade : MonoBehaviour
     #region ShowUI
     public void UpdateTextPotential(int potential)
     {
-        potentialText.text = " Potential: " + potential;
+        potentialText.text = "Điểm tiềm năng: " + potential;
     }
     public void UpdateTextAttack(int attack)
     {
-        attackText.text = " Attack: " + attack;
+        attackText.text = "Tấn Công: " + attack;
     }
     public void UpdateTextHp(int health)
     {
-        hpText.text = " Health: " + health;
+        hpText.text = "HP: " + health;
     }
     public void UpdateTextMp(int mana)
     {
-        mpText.text = " Mana: " + mana;
+        mpText.text = "KI: " + mana;
     }
     public void UpdateTextDf(int df)
     {
-        defText.text = " Def: " + df;
+        defText.text = "Giáp: " + df;
     }
     public void ShowHUD()
     {

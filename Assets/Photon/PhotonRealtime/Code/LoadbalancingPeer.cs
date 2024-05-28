@@ -1971,10 +1971,11 @@ namespace Photon.Realtime
         /// </remarks>
         public bool BroadcastPropsChangeToAll { get { return this.broadcastPropsChangeToAll; } set { this.broadcastPropsChangeToAll = value; } }
         private bool broadcastPropsChangeToAll = true;
+        public System.Collections.Hashtable CustomProperties;
 
-        #if SERVERSDK
+#if SERVERSDK
         public bool CheckUserOnJoin { get; set; }
-        #endif
+#endif
     }
 
 

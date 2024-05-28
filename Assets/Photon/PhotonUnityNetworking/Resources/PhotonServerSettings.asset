@@ -67,6 +67,49 @@ MonoBehaviour:
   - KameLeft
   - KameRight
   - ItemPickedUp
+  - DestroyItem
+  - AddItemToInventoryRPC
+  - AddItem
+  - AddItemRPC
+  - AddDamage
+  - Add
+  - UpdateInventoryUIRPC
+  - UpdateUI
+  - UpdateInventoryUI
+  - UpdateInventoryRPC
+  - OnItemChangedd
+  - OnItemChange
+  - OnItemAdded
+  - OnItemCleared
+  - OnItemRemoved
+  - CallItemChangedEvent
+  - OnItemPUN
+  - ImageIcon
+  - Duplicateequipment
+  - ImageIconFalse
+  - ImageIconTrue
+  - UpdateEquipmentUI
+  - ClearSlotRPC
+  - AddResult
+  - RemoveItemRPC
+  - DestroyItemRPC
+  - PickupItemRPC
+  - SyncInventoryUI
+  - AddItemToClient
+  - AddItemToServer
+  - testitem
+  - Testitem
+  - TestItem
+  - DamageFlash
+  - RespawnEnemy
+  - ReturnEnemy
+  - ChangeScene
+  - StartGame
+  - SynchronizeScene
+  - SpawnPlayer
+  - LeaveRoom
+  - DestroyEnemy
+  - UpdateExperience
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

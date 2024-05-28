@@ -26,7 +26,7 @@ public class LoadingBar : MonoBehaviour
             if (targetProgress >= 1f)
             {
                 loadingbarPopup.SetActive(false);
-                NetworkManager.networkmanager.JoinSever();
+               // NetworkManager.networkmanager.JoinServer();
             }
         }
 

@@ -10,7 +10,6 @@ public class PlayerSelection : MonoBehaviour
     public string playerPrefabName;
     public GameObject[] playerModel;
     public int selectedCharacter=0;
-    public Button[] characterIcons;
     [Header("Popup")]
     public GameObject playerPopup;
     public static PlayerSelection playerselection;

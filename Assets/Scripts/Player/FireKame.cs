@@ -20,7 +20,7 @@ public class FireKame : MonoBehaviourPun
             damage = PlayerPrefs.GetInt("DamageMax") * increaseAttack;
         }
         rb = GetComponent<Rigidbody2D>();
-        Invoke("DestroyObject", 2);
+        Invoke("DestroyObject", 1.5f);
     }
 
     void Update()

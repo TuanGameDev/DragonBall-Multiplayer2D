@@ -7,17 +7,20 @@ using Photon.Realtime;
 using TMPro;
 using System.Linq;
 using Unity.VisualScripting;
+using UnityEngine.SceneManagement;
+using ExitGames.Client.Photon;
+using Unity.Burst.CompilerServices;
 
-public class PlayerController : MonoBehaviourPun
+public class PlayerController : MonoBehaviourPunCallbacks
 {
     public Rigidbody2D rb;
     public Animator aim;
     public SpriteRenderer sr;
-    public SpriteRenderer[] srEffects;
     public Player photonPlayer;
     public static PlayerController me;
+    [Header("Kho Đồ")]
     public int id;
-    public List<Item> equipment = new List<Item>();
+    public Image[] icon;
     [Header("Tấn Công")]
     public Transform attackPoint;
     public int damageMin;
@@ -136,8 +139,8 @@ public class PlayerController : MonoBehaviourPun
         }
         _playerinfomation.UpdateNametag(player.NickName);
         _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
-        UpdateNametag(player.NickName);
-        UpdatePlayerLevel(playerLevel);
+        photonView.RPC("UpdateNametag", RpcTarget.All, player.NickName);
+        photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
         UpdateValue(maxHP);
         currentHP = maxHP;
@@ -204,10 +207,6 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     void FlipRight()
     {
-        for (int i = 0; i < srEffects.Length; i++)
-        {
-            srEffects[i].flipX = false;
-        }
         sr.flipX = false;
         faceRight = true;
         attackPoint.localPosition = new Vector3(Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
@@ -215,10 +214,6 @@ public class PlayerController : MonoBehaviourPun
     [PunRPC]
     void FlipLeft()
     {
-        for (int i = 0; i < srEffects.Length; i++)
-        {
-            srEffects[i].flipX = true;
-        }
         sr.flipX = true;
         faceRight = false;
         attackPoint.localPosition = new Vector3(-Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
@@ -237,54 +232,30 @@ public class PlayerController : MonoBehaviourPun
     public void Attack()
     {
         lastAttackTime = Time.time;
-        Collider2D[] hitenemy = Physics2D.OverlapCircleAll(attackPoint.position, attackRange, playermask);
+        RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.right, attackRange);
         initializeAttack(id, photonView.IsMine);
-        foreach (Collider2D enemy in hitenemy)
-            if (hitenemy != null && photonView.IsMine)
-            {
-                int randomDamage = Random.Range(damageMin, damageMax);
-                enemy.GetComponent<Enemy>().photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
-            }
-        aim.SetTrigger("Attack");
-        aim.SetBool("Move", false);
-       /* if(currentHP<=maxHP)
+
+        if (hit.collider != null && photonView.IsMine)
         {
-            currentHP += 50;
-        }*/
+            if (hit.collider.gameObject.CompareTag("Enemy"))
+            {
+                DealDamage<Enemy>(hit.collider);
+            }
+            aim.SetTrigger("Attack");
+            aim.SetBool("Move", false);
+        }
+    }
+    void DealDamage<T>(Collider2D collider) where T : MonoBehaviourPun
+    {
+        T enemy = collider.GetComponent<T>();
+        int randomDamage = Random.Range(damageMax, damageMin);
+        enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
     }
     void initializeAttack(int attackId, bool inMine)
     {
         this.warriorID = attackId;
         this.isMine = inMine;
     }
-    #region cộng trang bị từ inventory cho Nhân Vật
-    public void AddDamage(int damage,int health,int mana,int df)
-    {
-        damageMax += damage;
-        maxHP += health;
-        maxMP += mana;
-        def += df;
-    }
-    public void RemoveDamage(int value)
-    {
-        damageMax -= value;
-    }
-
-    public void RemoveHP(int value)
-    {
-        maxHP -= value;
-    }
-
-    public void RemoveMP(int value)
-    {
-        maxMP -= value;
-    }
-
-    public void RemoveDefense(int value)
-    {
-        def -= value;
-    }
-    #endregion
     #endregion
     #region Tự động Attack
     void AutoAttack()
@@ -402,7 +373,7 @@ public class PlayerController : MonoBehaviourPun
             aim.SetBool("Move", true);
             rb.gravityScale = 0f;
             messageText.color = Color.yellow;
-            messageText.text = " You have auto attack enabled ";
+            messageText.text = " On auto Tấn công ";
             StartCoroutine(HideMessageAfterDelay(3));
         }
         if (!isAutoAttacking)
@@ -411,7 +382,7 @@ public class PlayerController : MonoBehaviourPun
             rb.gravityScale = 20f;
             aim.ResetTrigger("Attack");
             messageText.color = Color.red;
-            messageText.text = " You have turned off auto attack ";
+            messageText.text = " Off auto tấn công ";
             StartCoroutine(HideMessageAfterDelay(3));
           _playerSkill.canMove = true;
         }
@@ -431,32 +402,6 @@ public class PlayerController : MonoBehaviourPun
         _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
         PlayerPrefs.SetInt("CurrentExp", currentExp);
-    }
-    public PlayerController GetPlayer(int playerId)
-    {
-        PlayerController[] players = FindObjectsOfType<PlayerController>();
-
-        foreach (PlayerController player in players)
-        {
-            if (player.photonView.OwnerActorNr == playerId)
-            {
-                return player;
-            }
-        }
-
-        return null;
-    }
-
-    public PlayerController GetPlayer(GameObject playerObject)
-    {
-        PlayerController player = playerObject.GetComponent<PlayerController>();
-
-        if (player != null)
-        {
-            return player;
-        }
-
-        return null;
     }
     public void LevelUp()
     {
@@ -481,7 +426,7 @@ public class PlayerController : MonoBehaviourPun
             _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
             messageText.color = Color.green;
-            messageText.text = " You have leveled up LV." + playerLevel;
+            messageText.text = "Bạn đã tăng lên cấp độ: " + playerLevel;
             StartCoroutine(HideMessageAfterDelay(3f));
         }
     }
@@ -540,39 +485,9 @@ public class PlayerController : MonoBehaviourPun
     {
         isAutoAttacking = false;
         transform.position = new Vector3(0, 90, 0);
-        Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
-        StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
-        //revivalButton.SetActive(true);
-    }
-    public void Revival()
-    {
-        Vector3 spawnPos = GameManager.gamemanager.spawnPoint[Random.Range(0, GameManager.gamemanager.spawnPoint.Length)].position;
+        Vector3 spawnPos = GameManager.gamemanager.spawnPoints[Random.Range(0, GameManager.gamemanager.spawnPoints.Length)].position;
         StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
     }
-  /*  public void ReviveOnTheSpot(int amount)
-    {
-        if (coin >= amount)
-        {
-            coin -= amount;
-            coin -= 10;
-            transform.position = new Vector3(0, 0, 0);
-            currentHP = maxHP;
-            currentMP = maxMP;
-            UpdateHealthSlider(currentHP);
-            UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-            revivalButton.SetActive(false);
-            Debug.Log("Revive.");
-        }
-        else
-        {
-            Debug.Log("Not enough coins to revive.");
-        }
-    }
-    public void ShowRevival()
-    {
-        revivalPopup.SetActive(true);
-        reviveOnTheSpotPopup.SetActive(true);
-    }*/
     IEnumerator Spawn(Vector3 spawnPos, float timeToSpawn)
     {
         yield return new WaitForSeconds(timeToSpawn);
@@ -586,7 +501,7 @@ public class PlayerController : MonoBehaviourPun
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
     }
     [PunRPC]
-    public void UpdateNametag(string name)
+     void UpdateNametag(string name)
     {
         playernametagText.text = ""+name;
     }
@@ -612,7 +527,7 @@ public class PlayerController : MonoBehaviourPun
     {
         coin += goldToGive;
         PlayerPrefs.SetInt("Coin", coin);
-        messageText.text = " You have picked up the coin " + "+" + goldToGive.ToString("N0");
+        messageText.text = " Bạn đã nhặt được vàng " + "+" + goldToGive.ToString("N0");
         messageText.color = Color.yellow;
         StartCoroutine(HideMessageAfterDelay(2f));
     }
@@ -621,7 +536,7 @@ public class PlayerController : MonoBehaviourPun
     {
         diamond += diamondToGive;
         PlayerPrefs.SetInt("Diamond", diamond);
-        messageText.text = " You have picked up the diamond " + diamondToGive.ToString("N0");
+        messageText.text = " Bạn đã nhặt được kim cương" + diamondToGive.ToString("N0");
         messageText.color = Color.yellow;
         StartCoroutine(HideMessageAfterDelay(2f));
     }
@@ -633,6 +548,8 @@ public class PlayerController : MonoBehaviourPun
     {
         diamondText.text = "" + diamond.ToString("N0");
     }
+    #endregion
+    #region Inventory
     #endregion
     #region IEnumerator Attack và Skill
     IEnumerator StartCooldown()

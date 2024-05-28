@@ -8,6 +8,7 @@ using UnityEngine.UI;
 using Photon.Realtime;
 using ExitGames.Client.Photon;
 using System;
+using System.Linq;
 public class Enemy : MonoBehaviourPun
 {
     public SpriteRenderer sr;
@@ -184,7 +185,6 @@ public class Enemy : MonoBehaviourPun
             sr.color = Color.red;
             yield return new WaitForSeconds(0.09f);
             sr.color = Color.white;
-            aim.SetTrigger("Hit");
         }
     }
     [PunRPC]
@@ -205,9 +205,20 @@ public class Enemy : MonoBehaviourPun
     }
     void Die()
     {
-        PlayerController player = PlayerController.me.GetPlayer(curAttackerID);
-        player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
+        PlayerController player = GetPlayer(curAttackerID);
+        GetPlayer(curAttackerID).photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
+        //PhotonNetwork.Instantiate(objectTospawnOnDeath, transform.position, Quaternion.identity);
         PhotonNetwork.Destroy(gameObject);
+    }
+
+    public PlayerController GetPlayer(int playerId)
+    {
+        return playerInScene.FirstOrDefault(x => x.id == playerId);
+    }
+
+    public PlayerController GetPlayer(GameObject playerObject)
+    {
+        return playerInScene.FirstOrDefault(x => x.gameObject == playerObject);
     }
     public void EnemyStatusInfo(int maxVal)
     {
