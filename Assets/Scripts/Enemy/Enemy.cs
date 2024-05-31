@@ -16,6 +16,7 @@ public class Enemy : MonoBehaviourPun
     public Animator aim;
     [Header("Quản lí")]
     public string enemyName;
+    public string enemyLevel;
     public string dead = "Death";
     private PlayerController[] playerInScene;
     private PlayerController targetPlayer;
@@ -23,7 +24,6 @@ public class Enemy : MonoBehaviourPun
     public int damage;
     public float chaseRange;
     public float attackRange;
-    public float playerdetectRate;
     private float lastPlayerDetectTime;
     public float attackrate;
     private float lastattackTime;
@@ -32,7 +32,6 @@ public class Enemy : MonoBehaviourPun
     [Header("Máu")]
     public int currentHP;
     public int maxHP;
-    public float pushForce;
     private float maxHealthValue;
     public Slider healthBar;
     [Header("Kinh nghiệm")]
@@ -45,7 +44,8 @@ public class Enemy : MonoBehaviourPun
     public bool isAttacking = false;
     [Header("UI")]
     public GameObject damPopUp;
-    public TextMeshProUGUI playernametagText;
+    public TextMeshProUGUI enemynametagText;
+    public TextMeshProUGUI enemylevelText;
     public TextMeshProUGUI hpText;
     public GameObject InfoPopup;
     private void Start()
@@ -53,7 +53,8 @@ public class Enemy : MonoBehaviourPun
         EnemyStatusInfo(maxHP);
         photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
         photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
-        playernametagText.text = "" + enemyName;
+        enemynametagText.text = "" + enemyName;
+        enemylevelText.text = "" + enemyLevel;
     }
     private void Update()
     {
@@ -85,9 +86,7 @@ public class Enemy : MonoBehaviourPun
             else if (dist > attackRange)
             {
                 Vector3 dir = targetPlayer.transform.position - transform.position;
-                //rb.velocity = dir.normalized * moveSpeed;
                 photonView.RPC("FlipRight", RpcTarget.All);
-                //aim.SetBool("Move", true);
             }
             else
             {
@@ -117,30 +116,26 @@ public class Enemy : MonoBehaviourPun
 
     void DetectPlayer()
     {
-        if (Time.time - lastPlayerDetectTime > playerdetectRate)
+        playerInScene = FindObjectsOfType<PlayerController>();
+        foreach (PlayerController player in playerInScene)
         {
-            lastPlayerDetectTime = Time.time;
-            playerInScene = FindObjectsOfType<PlayerController>();
-            foreach (PlayerController player in playerInScene)
+            float dist = Vector2.Distance(transform.position, player.transform.position);
+            if (player == targetPlayer)
             {
-                float dist = Vector2.Distance(transform.position, player.transform.position);
-                if (player == targetPlayer)
+                if (dist > chaseRange)
                 {
-                    if (dist > chaseRange)
-                    {
-                        isAttacking = false;
-                        targetPlayer = null;
-                        aim.SetBool("Move", false);
-                        rb.velocity = Vector2.zero;
-                    }
+                    isAttacking = false;
+                    targetPlayer = null;
+                    aim.SetBool("Move", false);
+                    rb.velocity = Vector2.zero;
                 }
-                else if (dist < chaseRange)
+            }
+            else if (dist < chaseRange)
+            {
+                isAttacking = true;
+                if (targetPlayer == null)
                 {
-                    isAttacking = true;
-                    if (targetPlayer == null)
-                    {
-                        targetPlayer = player;
-                    }
+                    targetPlayer = player;
                 }
             }
         }

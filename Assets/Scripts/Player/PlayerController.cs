@@ -61,6 +61,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public int maxExp = 500;
     [Header("UI")]
     public TextMeshProUGUI playernametagText;
+    public TextMeshProUGUI playerLevelTXT;
     public TextMeshProUGUI playerLevelText;
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
@@ -76,7 +77,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public GameObject revivalButton;
     public GameObject revivalPopup;
     public GameObject reviveOnTheSpotPopup;
-    [Header("Scipts")]
+    [Header("Scripts")]
     public PlayerUpGrade _playerUpgrade;
     public PlayerSkill _playerSkill;
     public PlayerInfomation _playerinfomation;
@@ -159,6 +160,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     void Update()
     {
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
+        UpdateLevel(currentExp, maxExp, playerLevel);
         UpdateCoin(coin);
         UpdateDiamond(diamond);
         if (!photonView.IsMine)
@@ -186,16 +188,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
             if (x != 0 || y != 0)
             {
                 aim.SetBool("Move", true);
-
                 if (x > 0 && !faceRight)
                 {
-                    _playerSkill.photonView.RPC("KameRight", RpcTarget.All);
                     photonView.RPC("FlipRight", RpcTarget.All);
                 }
                 else if (x < 0 && faceRight)
                 {
                     photonView.RPC("FlipLeft", RpcTarget.All);
-                    _playerSkill.photonView.RPC("KameLeft", RpcTarget.All);
                 }
             }
             else
@@ -347,6 +346,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             Transform enemyTransform = enemyObject.transform;
             float distance = Vector2.Distance(transform.position, enemyTransform.position);
 
+            // Keep a safe distance from the enemy
             if (distance < nearestDistance)
             {
                 nearestDistance = distance;
@@ -389,6 +389,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     #endregion
     #region Level và XP
+    public void UpdateLevel(int currentExp, int maxExp, int level)
+    {
+
+        float percentage = (float)currentExp / maxExp * 100f;
+        string formattedPercentage = "Level: " + level + " + " + percentage.ToString("0.00") + "%";
+        playerLevelTXT.text = formattedPercentage;
+    }
     [PunRPC]
     void UpdatePlayerLevel(int name)
     {
@@ -410,10 +417,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             currentExp -= maxExp;
             maxExp = (int)(maxExp * 1.1f);
             playerLevel++;
-            damageMin += 10;
-            damageMax += 10;
-            currentHP += 20;
-            maxHP += 20;
+            damageMin += 20;
+            damageMax += 20;
+            currentHP += 50;
+            maxHP += 50;
             _playerUpgrade.strengthPotential +=1;
             PlayerPrefs.SetInt("Potential", _playerUpgrade.strengthPotential);
             PlayerPrefs.SetInt("CurrentExp", currentExp);
@@ -424,6 +431,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             PlayerPrefs.SetInt("maxHP", maxHP);
             PlayerPrefs.SetInt("currentHP", currentHP);
             _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
+            UpdateHealthSlider(currentHP);
             photonView.RPC("UpdatePlayerLevel", RpcTarget.All, playerLevel);
             messageText.color = Color.green;
             messageText.text = "Bạn đã tăng lên cấp độ: " + playerLevel;
@@ -435,7 +443,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private void OnDrawGizmos()
     {
         Gizmos.color = Color.red;
-        Gizmos.DrawWireSphere(attackPoint.position, attackRange);
+        Gizmos.DrawRay(attackPoint.position, transform.right * attackRange);
     }
     #endregion
     #region Health + Name

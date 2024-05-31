@@ -20,12 +20,12 @@ public class PlayerSkill : MonoBehaviourPun
     public PlayerController controller;
     private Dictionary<string, CoolDown> cooldowns;
 
-    [Header("Đấm Dragon")]
+    [Header("Đấm")]
     public Image cooldownSkill1;
     public TextMeshProUGUI skill1Text;
 
 
-    [Header("Chưởng Kame")]
+    [Header("Chưởng")]
     public string kameRight;
     public string kameLeft;
     public Transform fireKameRight;
@@ -34,7 +34,7 @@ public class PlayerSkill : MonoBehaviourPun
     public TextMeshProUGUI skill2Text;
     public bool canMove;
 
-    [Header("Tái tạo năng lượng")]
+    [Header("Biến Hình")]
     public int aimLayerIndex;
     public int baseLayerIndex;
     public Image cooldownSkill3;
@@ -43,7 +43,6 @@ public class PlayerSkill : MonoBehaviourPun
     public TextMeshProUGUI skill3UI_Text;
     private void Start()
     {
-        GetPlayerIndex();
         InitializeCooldowns();
         canMove = true;
     }
@@ -63,13 +62,13 @@ public class PlayerSkill : MonoBehaviourPun
     {
         if (controller.faceRight)
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight, fireKameRight.transform.position, Quaternion.identity);
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight, controller.attackPoint.transform.position, Quaternion.identity);
             FireKame bulletScript = bulletObj.GetComponent<FireKame>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }
         else
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft, fireKameLeft.transform.position, Quaternion.identity);
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft, controller.attackPoint.position, Quaternion.identity);
             FireKame bulletScript = bulletObj.GetComponent<FireKame>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }
@@ -88,20 +87,6 @@ public class PlayerSkill : MonoBehaviourPun
     {
         canMove = true;
     }
-    [PunRPC]
-    void KameRight()
-    {
-        controller.sr.flipX = false;
-        controller.faceRight = true;
-        fireKameRight.localPosition = new Vector3(Mathf.Abs(fireKameRight.localPosition.x), fireKameRight.localPosition.y, fireKameRight.localPosition.z);
-    }
-    [PunRPC]
-    void KameLeft()
-    {
-        controller.sr.flipX = true;
-        controller.faceRight = false;
-        fireKameRight.localPosition = new Vector3(-Mathf.Abs(fireKameRight.localPosition.x), fireKameRight.localPosition.y, fireKameRight.localPosition.z);
-    }
     #endregion
     #region Skill 3
     public void Skill3()
@@ -111,7 +96,7 @@ public class PlayerSkill : MonoBehaviourPun
             if (aimLayerIndex != -1)
             {
                 StartCoroutine(PlayIntroAndIdle());
-                ReturnToBaseLayerAfterDelay(5f);
+                ReturnToBaseLayerAfterDelay(30f);
                 ChangeSkin();
             }
             StartCooldown("skill3", skill3Cooldown.Delay);
@@ -154,7 +139,7 @@ public class PlayerSkill : MonoBehaviourPun
     private void ReturnToBaseLayerAfterDelay(float delay)
     {
         float startTime = Time.time;
-        float endTime = startTime + delay;
+        float endTime = startTime+ delay;
         StartCoroutine(ReturnToBaseLayerCoroutine(endTime));
     }
 
@@ -173,18 +158,6 @@ public class PlayerSkill : MonoBehaviourPun
         skill3UI_Text.text = "0.0";
         skill3UI_Text.gameObject.SetActive(false);
         skill3UI.SetActive(false);
-        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
-        {
-            aimLayerIndex = 1;
-        }
-        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
-        {
-            aimLayerIndex = 1;
-        }
-        else
-        {
-            // Xử lý cho trường hợp khác (nếu cần)
-        }
     }
     #region Cooldown Skill
     private void InitializeCooldowns()
@@ -274,22 +247,6 @@ public class PlayerSkill : MonoBehaviourPun
         {
             // Xử lý cho trường hợp khác (nếu cần)
         }
-    }
-    void GetPlayerIndex()
-    {
-        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
-        {
-            aimLayerIndex = controller.aim.GetLayerIndex("Goku SJJ 2");
-        }
-        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
-        {
-            aimLayerIndex = controller.aim.GetLayerIndex("Goku SJJ 3");
-        }
-        else
-        {
-            // Xử lý cho trường hợp khác (nếu cần)
-        }
-        baseLayerIndex = controller.aim.GetLayerIndex("Base Layer");
     }
     #endregion
 }

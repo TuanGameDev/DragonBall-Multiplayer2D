@@ -112,7 +112,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     {
         currentmap++;
         if (currentmap >= maps.Length) currentmap = 0;
-        mapValue.text = "Bản Đồ:" + maps[currentmap].name;
+        mapValue.text = "" + maps[currentmap].name;
     }
     public override void OnRoomListUpdate(List<RoomInfo> p_list)
     {

@@ -2,8 +2,6 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Progress;
-
 public class PhotonInventoryManager : MonoBehaviourPunCallbacks
 {
     public int maxInventorySize = 10; // Kích thước tối đa của inventory

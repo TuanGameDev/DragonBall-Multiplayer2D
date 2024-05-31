@@ -40,8 +40,8 @@ public class PlayerUpGrade : MonoBehaviour
 
         if (strengthPotential >= point)
         {
-            PlayerController.me.damageMin += 5;
-            PlayerController.me.damageMax += 5;
+            PlayerController.me.damageMin += 10;
+            PlayerController.me.damageMax += 10;
             PlayerPrefs.SetInt("DamageMin", PlayerController.me.damageMin);
             PlayerPrefs.SetInt("DamageMax", PlayerController.me.damageMax);
             strengthPotential -= point;
@@ -63,8 +63,8 @@ public class PlayerUpGrade : MonoBehaviour
 
         if (strengthPotential >= point)
         {
-            PlayerController.me.currentHP += 10;
-            PlayerController.me.maxHP += 10;
+            PlayerController.me.currentHP += 20;
+            PlayerController.me.maxHP += 20;
             PlayerPrefs.SetInt("currentHP", PlayerController.me.currentHP);
             PlayerPrefs.SetInt("maxHP", PlayerController.me.maxHP);
             strengthPotential -= point;
@@ -86,8 +86,8 @@ public class PlayerUpGrade : MonoBehaviour
 
         if (strengthPotential >= point)
         {
-            PlayerController.me.currentMP += 10;
-            PlayerController.me.maxMP += 10;
+            PlayerController.me.currentMP += 20;
+            PlayerController.me.maxMP += 20;
             PlayerPrefs.SetInt("currentMP", PlayerController.me.currentMP);
             PlayerPrefs.SetInt("maxMP", PlayerController.me.maxMP);
             strengthPotential -= point;
@@ -105,11 +105,11 @@ public class PlayerUpGrade : MonoBehaviour
     }
     public void UpGradeDef()
     {
-        int point = 1;
+        int point = 5;
 
         if (strengthPotential >= point)
         {
-            PlayerController.me.def += 1;
+            PlayerController.me.def += 5;
             PlayerPrefs.SetInt("DF", PlayerController.me.def);
             strengthPotential -= point;
             PlayerPrefs.SetInt("Potential", strengthPotential);
