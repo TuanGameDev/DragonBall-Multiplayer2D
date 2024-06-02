@@ -14,4 +14,7 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scenes/Namec.unity
     guid: 6570324f4b4ed474e869e2d928d22a97
+  - enabled: 1
+    path: Assets/Scenes/Xayda.unity
+    guid: d7711ee0b9b5ba445ae747079855cc85
   m_configObjects: {}

@@ -108,11 +108,13 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
         PhotonNetwork.CreateRoom(roomNameInput.text, options);
     }
-    public void ChangeMap()
+    public void ChangeMap(int map)
     {
-        currentmap++;
-        if (currentmap >= maps.Length) currentmap = 0;
-        mapValue.text = "" + maps[currentmap].name;
+        if (map >= 0 && map < maps.Length)
+        {
+            currentmap = map;
+        }
+        mapValue.text = "Chọn Hành Tinh: " + maps[currentmap].name;
     }
     public override void OnRoomListUpdate(List<RoomInfo> p_list)
     {

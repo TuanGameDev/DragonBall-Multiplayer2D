@@ -644,7 +644,7 @@ GameObject:
   - component: {fileID: 7576733905469204578}
   - component: {fileID: 416438038883316108}
   - component: {fileID: 7223788855459515426}
-  - component: {fileID: 7498436396218389872}
+  - component: {fileID: 843071315303029793}
   - component: {fileID: 7186801225103623146}
   - component: {fileID: 1971451693395433552}
   - component: {fileID: 3655342740724141301}
@@ -816,7 +816,7 @@ Animator:
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorStateOnDisable: 0
   m_WriteDefaultValuesOnDisable: 0
---- !u!114 &7498436396218389872
+--- !u!114 &843071315303029793
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -825,7 +825,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 6019879371189507407}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ab001fd990d685a49850abea8d04b880, type: 3}
+  m_Script: {fileID: 11500000, guid: 63123ee0b7692c846aed1856efd5302d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   sr: {fileID: 5380052813178516528}
@@ -835,17 +835,15 @@ MonoBehaviour:
   enemyLevel: Level 50
   dead: Death
   damage: 200
-  chaseRange: 2
+  chaseRange: 10
   attackRange: 2
-  attackrate: 1
+  attackRate: 1
   moveSpeed: 2
-  currentHP: 200000
-  maxHP: 200000
+  currentHP: 2000000
+  maxHP: 2000000
   healthBar: {fileID: 86246448240342215}
   curAttackerID: 0
-  xpToGive: 50000
-  objectTospawnOnDeath: Coin
-  isAttacking: 0
+  xpToGive: 30000
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
   enemynametagText: {fileID: 3580324815903892408}
   enemylevelText: {fileID: 9210472122808781540}

@@ -202,18 +202,17 @@ MonoBehaviour:
   aim: {fileID: 2900319474967199047}
   enemyName: Rei Cold
   enemyLevel: Level 20
-  dead: Death
-  damage: 20
-  chaseRange: 3
+  objectcoinDead: Coin
+  damage: 100
+  chaseRange: 2
   attackRange: 2
-  attackrate: 1
+  attackRate: 1.2
   moveSpeed: 2
-  currentHP: 10000
-  maxHP: 10000
+  currentHP: 100000
+  maxHP: 100000
   healthBar: {fileID: 454392616544861912}
   curAttackerID: 0
-  xpToGive: 50000
-  objectTospawnOnDeath: Coin
+  xpToGive: 10000
   isAttacking: 0
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
   enemynametagText: {fileID: 5619795440789068356}

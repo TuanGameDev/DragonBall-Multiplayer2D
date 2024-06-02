@@ -1213,8 +1213,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
+  m_sharedMaterial: {fileID: 7374927986402738804, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1996,7 +1996,6 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 8302082458464525131}
-  - {fileID: 7180542739091219815}
   - {fileID: 540280389162678337}
   - {fileID: 6009257447650471321}
   - {fileID: 1830636769220701056}
@@ -2204,8 +2203,8 @@ MonoBehaviour:
   - {fileID: 2528579036755301126}
   - {fileID: 4827114528693245256}
   attackPoint: {fileID: 8302082458464525131}
-  damageMin: 30
-  damageMax: 35
+  damageMin: 50
+  damageMax: 55
   attackRange: 0.8
   attackDelay: 0.8
   warriorID: 0
@@ -2217,8 +2216,8 @@ MonoBehaviour:
   attackButton: {fileID: 6123099996113057093}
   cooldownAttack: {fileID: 725325368931257747}
   attackcooldownText: {fileID: 3586933056633868163}
-  currentHP: 200
-  maxHP: 200
+  currentHP: 1000
+  maxHP: 1000
   currentMP: 150
   maxMP: 150
   def: 0
@@ -2287,7 +2286,7 @@ MonoBehaviour:
     Delay: 0.6
     LastAttackTime: 0
   skill2Cooldown:
-    Delay: 5
+    Delay: 10
     LastAttackTime: 0
   skill3Cooldown:
     Delay: 30
@@ -2295,10 +2294,10 @@ MonoBehaviour:
   controller: {fileID: 5549890971538962318}
   cooldownSkill1: {fileID: 725325368931257747}
   skill1Text: {fileID: 3586933056633868163}
-  kameRight: KameGoku_Right
-  kameLeft: KameGoku_Left
-  fireKameRight: {fileID: 7180542739091219815}
-  fireKameLeft: {fileID: 7180542739091219815}
+  kameRight: {fileID: 5595976573367658650, guid: f8074e082136112499d2f55b992a8638, type: 3}
+  kameLeft: {fileID: 5595976573367658650, guid: 3c83992e4479c5b4ca96f9d7e1f1ccca, type: 3}
+  fireKameRight: {fileID: 8302082458464525131}
+  fireKameLeft: {fileID: 8302082458464525131}
   cooldownSkill2: {fileID: 6655969265617556933}
   skill2Text: {fileID: 7333431701933403056}
   canMove: 0
@@ -5751,8 +5750,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
+  m_sharedMaterial: {fileID: 7374927986402738804, guid: 2a2489a19361f46458ec8e370f4c615f, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -9853,7 +9852,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 0
+  m_IsActive: 1
 --- !u!224 &4577499607417801944
 RectTransform:
   m_ObjectHideFlags: 0
@@ -9901,7 +9900,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_Sprite: {fileID: 1186134236, guid: fd830dd4d62c3734eaa34d7c4bf68796, type: 3}
+  m_Sprite: {fileID: -1598665941, guid: fd830dd4d62c3734eaa34d7c4bf68796, type: 3}
   m_Type: 0
   m_PreserveAspect: 0
   m_FillCenter: 1
@@ -17848,37 +17847,6 @@ MonoBehaviour:
   m_OnValueChanged:
     m_PersistentCalls:
       m_Calls: []
---- !u!1 &7687656746451884529
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 7180542739091219815}
-  m_Layer: 0
-  m_Name: KamePoint
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &7180542739091219815
-Transform:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7687656746451884529}
-  serializedVersion: 2
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 11.44, y: 0.01, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_ConstrainProportionsScale: 0
-  m_Children: []
-  m_Father: {fileID: 9135296887758802707}
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &7702829837728218510
 GameObject:
   m_ObjectHideFlags: 0
@@ -18565,7 +18533,7 @@ GameObject:
   - component: {fileID: 6324645685338943329}
   - component: {fileID: 4272237275982821945}
   m_Layer: 6
-  m_Name: Skill5
+  m_Name: Skill4
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

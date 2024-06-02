@@ -26,8 +26,8 @@ public class PlayerSkill : MonoBehaviourPun
 
 
     [Header("Chưởng")]
-    public string kameRight;
-    public string kameLeft;
+    public GameObject kameRight;
+    public GameObject kameLeft;
     public Transform fireKameRight;
     public Transform fireKameLeft;
     public Image cooldownSkill2;
@@ -62,13 +62,13 @@ public class PlayerSkill : MonoBehaviourPun
     {
         if (controller.faceRight)
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight, controller.attackPoint.transform.position, Quaternion.identity);
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight.name, controller.attackPoint.transform.position, Quaternion.identity);
             FireKame bulletScript = bulletObj.GetComponent<FireKame>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }
         else
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft, controller.attackPoint.position, Quaternion.identity);
+            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft.name, controller.attackPoint.position, Quaternion.identity);
             FireKame bulletScript = bulletObj.GetComponent<FireKame>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }

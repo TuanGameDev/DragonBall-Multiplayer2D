@@ -281,18 +281,17 @@ MonoBehaviour:
   aim: {fileID: 1818751545567601354}
   enemyName: OozaruBase
   enemyLevel: Level 1
-  dead: Death
-  damage: 5
-  chaseRange: 3
+  objectcoinDead: Coin
+  damage: 20
+  chaseRange: 2
   attackRange: 2
-  attackrate: 1
+  attackRate: 1.2
   moveSpeed: 2
-  currentHP: 1000
-  maxHP: 1000
+  currentHP: 2000
+  maxHP: 2000
   healthBar: {fileID: 7114398092303919975}
   curAttackerID: 0
   xpToGive: 200
-  objectTospawnOnDeath: Coin
   isAttacking: 0
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
   enemynametagText: {fileID: 7720669245702346058}

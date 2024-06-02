@@ -236,19 +236,30 @@ public class PlayerController : MonoBehaviourPunCallbacks
 
         if (hit.collider != null && photonView.IsMine)
         {
-            if (hit.collider.gameObject.CompareTag("Enemy"))
+            GameObject hitObject = hit.collider.gameObject;
+            if (hitObject.CompareTag("Enemy"))
             {
-                DealDamage<Enemy>(hit.collider);
+                DealDamage(hitObject);
             }
             aim.SetTrigger("Attack");
             aim.SetBool("Move", false);
         }
     }
-    void DealDamage<T>(Collider2D collider) where T : MonoBehaviourPun
+
+    private void DealDamage(GameObject enemyObject)
     {
-        T enemy = collider.GetComponent<T>();
-        int randomDamage = Random.Range(damageMax, damageMin);
-        enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+        Enemy enemy = enemyObject.GetComponent<Enemy>();
+        if (enemy != null)
+        {
+            int randomDamage = Random.Range(damageMax, damageMin);
+            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+        }
+        Boss boss = enemyObject.GetComponent<Boss>();
+        if (boss != null)
+        {
+            int randomDamage = Random.Range(damageMax, damageMin);
+            boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+        }
     }
     void initializeAttack(int attackId, bool inMine)
     {
@@ -389,6 +400,19 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     #endregion
     #region Level và XP
+    public void SetHashes()
+    {
+        try
+        {
+            ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
+            hash["Level"] = playerLevel;
+            PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
+        }
+        catch
+        {
+            //
+        }
+    }
     public void UpdateLevel(int currentExp, int maxExp, int level)
     {
 
@@ -417,10 +441,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
             currentExp -= maxExp;
             maxExp = (int)(maxExp * 1.1f);
             playerLevel++;
-            damageMin += 20;
-            damageMax += 20;
-            currentHP += 50;
-            maxHP += 50;
+            damageMin += 30;
+            damageMax += 30;
+            currentHP += 100;
+            maxHP += 100;
             _playerUpgrade.strengthPotential +=1;
             PlayerPrefs.SetInt("Potential", _playerUpgrade.strengthPotential);
             PlayerPrefs.SetInt("CurrentExp", currentExp);
@@ -436,6 +460,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
             messageText.color = Color.green;
             messageText.text = "Bạn đã tăng lên cấp độ: " + playerLevel;
             StartCoroutine(HideMessageAfterDelay(3f));
+            SetHashes();
         }
     }
     #endregion
@@ -535,7 +560,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         coin += goldToGive;
         PlayerPrefs.SetInt("Coin", coin);
-        messageText.text = " Bạn đã nhặt được vàng " + "+" + goldToGive.ToString("N0");
+        messageText.text = " Bạn đã lụm vàng " + "+" + goldToGive.ToString("N0");
         messageText.color = Color.yellow;
         StartCoroutine(HideMessageAfterDelay(2f));
     }
@@ -544,7 +569,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     {
         diamond += diamondToGive;
         PlayerPrefs.SetInt("Diamond", diamond);
-        messageText.text = " Bạn đã nhặt được kim cương" + diamondToGive.ToString("N0");
+        messageText.text = " Bạn đã lụm kim cương" + diamondToGive.ToString("N0");
         messageText.color = Color.yellow;
         StartCoroutine(HideMessageAfterDelay(2f));
     }
@@ -558,6 +583,21 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     #endregion
     #region Inventory
+    public void AddHP(int amount)
+    {
+        maxHP += amount;
+    } 
+    public void AddMP(int amount)
+    {
+        maxMP += amount;
+    } 
+    public void AddAttack(int amount)
+    {
+        damageMax += amount;
+    } public void AddDef(int amount)
+    {
+        def += amount;
+    }
     #endregion
     #region IEnumerator Attack và Skill
     IEnumerator StartCooldown()

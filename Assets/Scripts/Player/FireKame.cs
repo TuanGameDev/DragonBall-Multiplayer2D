@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using Photon.Pun;
+using Unity.Burst.CompilerServices;
 
 public class FireKame : MonoBehaviourPun
 {
@@ -32,9 +33,21 @@ public class FireKame : MonoBehaviourPun
     {
         if (other.CompareTag("Enemy") && isMine)
         {
-            Enemy enemy = other.GetComponent<Enemy>();
+            DealDamage(other.gameObject);
+        }
+    }
+
+    private void DealDamage(GameObject enemyObject)
+    {
+        Enemy enemy = enemyObject.GetComponent<Enemy>();
+        if (enemy != null)
+        {
             enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
-            //photonView.RPC("DestroyObject", RpcTarget.MasterClient);
+        }
+        Boss boss = enemyObject.GetComponent<Boss>();
+        if (boss != null)
+        {
+            boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
         }
     }
     [PunRPC]
