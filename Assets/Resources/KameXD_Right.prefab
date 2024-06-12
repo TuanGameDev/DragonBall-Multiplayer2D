@@ -30,7 +30,7 @@ Transform:
   m_GameObject: {fileID: 5595976573367658650}
   serializedVersion: 2
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -56.0418, y: -7.3618, z: 0}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
@@ -128,9 +128,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 30
+  destroyObject: 1
   moveDirection: {x: 1, y: 0}
+  rb: {fileID: 7230075664776510707}
   damage: 100
   increaseAttack: 2
+  target: {fileID: 0}
 --- !u!114 &-6062886538053116976
 MonoBehaviour:
   m_ObjectHideFlags: 0

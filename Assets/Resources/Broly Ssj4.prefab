@@ -833,7 +833,6 @@ MonoBehaviour:
   aim: {fileID: 7223788855459515426}
   enemyName: Broly Ssj4
   enemyLevel: Level 50
-  dead: Death
   damage: 200
   chaseRange: 10
   attackRange: 2
@@ -849,6 +848,7 @@ MonoBehaviour:
   enemylevelText: {fileID: 9210472122808781540}
   hpText: {fileID: 2326632774059482963}
   InfoPopup: {fileID: 7064993322711539255}
+  attackstop: 0
 --- !u!114 &7186801225103623146
 MonoBehaviour:
   m_ObjectHideFlags: 0

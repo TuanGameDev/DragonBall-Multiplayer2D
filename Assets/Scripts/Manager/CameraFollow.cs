@@ -5,16 +5,18 @@ using Cinemachine;
 
 public class CameraFollow : MonoBehaviour
 {
+    public static CameraFollow instance { get; private set; }
     [SerializeField]
     private CinemachineVirtualCamera virtualCamera;
+    private float shakeTimer;
+    private float shakeTimerTotal;
+    private float startingIntensity;
 
-    void Start()
+    void Awake()
     {
-        virtualCamera = GameObject.Find("Virtual Camera").GetComponent<CinemachineVirtualCamera>();
-        if (virtualCamera == null)
-        {
-            Debug.LogError("Virtual camera reference is missing!");
-        }
+        instance = this;
+        virtualCamera = GetComponent<CinemachineVirtualCamera>();
+
     }
 
     void Update()
@@ -29,5 +31,24 @@ public class CameraFollow : MonoBehaviour
                 virtualCamera.Follow = PlayerController.me.transform;
             }
         }
+        if (shakeTimer > 0)
+        {
+            shakeTimer -= Time.deltaTime;
+            CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = Mathf.Lerp(startingIntensity, 0f, shakeTimer / shakeTimerTotal);
+        }
+        else
+        {
+            CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChannelPerlin = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+            cinemachineBasicMultiChannelPerlin.m_AmplitudeGain = 0f;
+        }
+    }
+    public void ShakeCamera(float intensity, float time)
+    {
+        CinemachineBasicMultiChannelPerlin cinemachineBasicMultiChanlPerlin = virtualCamera.GetCinemachineComponent<CinemachineBasicMultiChannelPerlin>();
+        cinemachineBasicMultiChanlPerlin.m_AmplitudeGain = intensity;
+        shakeTimer = time;
+        shakeTimerTotal = time;
+        startingIntensity = intensity;
     }
 }

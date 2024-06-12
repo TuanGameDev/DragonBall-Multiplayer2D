@@ -11,7 +11,7 @@ using UnityEngine.SceneManagement;
 using ExitGames.Client.Photon;
 using Unity.Burst.CompilerServices;
 
-public class PlayerController : MonoBehaviourPunCallbacks
+public class PlayerController : MonoBehaviourPun
 {
     public Rigidbody2D rb;
     public Animator aim;
@@ -30,11 +30,13 @@ public class PlayerController : MonoBehaviourPunCallbacks
     private float lastAttackTime;
     public int warriorID;
     private bool isMine;
-    public LayerMask playermask;
+    [Header("Chí mạng")]
+    public int criticalDamage;
+    public float criticalChance = 0.2f;
     [Header("Tự động Tấn Công")]
     public TextMeshProUGUI autoattackText;
     public Button autoattackButton;
-    private Transform currentTarget;
+    public Transform currentTarget;
     private bool isAutoAttacking = false;
     [Header("Tấn Công và SkillCooldown")]
     public Button attackButton;
@@ -69,14 +71,12 @@ public class PlayerController : MonoBehaviourPunCallbacks
     public TextMeshProUGUI diamondText;
     public TextMeshProUGUI messageText;
     public Slider healthBar;
-    public Canvas canvasHUD;
+    public Canvas playerHUD;
+    public Canvas hoisinhCV;
     [Header("Hiệu Ứng")]
     public GameObject damPopUp;
-    public GameObject levelUp;
     [Header("Hồi Sinh")]
     public GameObject revivalButton;
-    public GameObject revivalPopup;
-    public GameObject reviveOnTheSpotPopup;
     [Header("Scripts")]
     public PlayerUpGrade _playerUpgrade;
     public PlayerSkill _playerSkill;
@@ -138,6 +138,10 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             damageMax = PlayerPrefs.GetInt("DamageMax");
         }
+        if (PlayerPrefs.HasKey("CritDamage"))
+        {
+            criticalDamage = PlayerPrefs.GetInt("CritDamage");
+        }
         _playerinfomation.UpdateNametag(player.NickName);
         _playerinfomation.UpdateLevel(currentExp, maxExp, playerLevel);
         photonView.RPC("UpdateNametag", RpcTarget.All, player.NickName);
@@ -150,11 +154,14 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     void Start()
     {
+        currentHP = maxHP;
+        SetHashes();
         attackButton.onClick.AddListener(HandleAttackButtonClick);
         autoattackButton.onClick.AddListener(ToggleAutoAttack);
         if (!photonView.IsMine)
         {
-            canvasHUD.enabled = false;
+            playerHUD.enabled = false;
+            hoisinhCV.enabled = false;
         }
     }
     void Update()
@@ -178,7 +185,6 @@ public class PlayerController : MonoBehaviourPunCallbacks
             MoveJoystick(x, y);
         }
     }
-
     void MoveJoystick(float x, float y)
     {
         if (!dead&&_playerSkill.canMove)
@@ -230,35 +236,58 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     public void Attack()
     {
-        lastAttackTime = Time.time;
-        RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.right, attackRange);
-        initializeAttack(id, photonView.IsMine);
-
-        if (hit.collider != null && photonView.IsMine)
+        if(currentTarget!=null)
         {
-            GameObject hitObject = hit.collider.gameObject;
-            if (hitObject.CompareTag("Enemy"))
+            lastAttackTime = Time.time;
+            RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.right, attackRange);
+            initializeAttack(id, photonView.IsMine);
+
+            if (hit.collider != null && photonView.IsMine)
             {
-                DealDamage(hitObject);
+                GameObject hitObject = hit.collider.gameObject;
+                if (hitObject.CompareTag("Enemy"))
+                {
+                    DealDamage(hitObject);
+                }
+                aim.SetTrigger("Attack");
+                aim.SetBool("Move", false);
             }
-            aim.SetTrigger("Attack");
-            aim.SetBool("Move", false);
         }
     }
 
     private void DealDamage(GameObject enemyObject)
     {
         Enemy enemy = enemyObject.GetComponent<Enemy>();
+        Boss boss = enemyObject.GetComponent<Boss>();
+
+        int randomDamage;
+        bool isCritical = Random.value <= criticalChance;
+
         if (enemy != null)
         {
-            int randomDamage = Random.Range(damageMax, damageMin);
-            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            if (isCritical)
+            {
+                randomDamage = Random.Range((int)(damageMax * criticalDamage), (int)(damageMin * criticalDamage));
+                enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            }
+            else
+            {
+                randomDamage = Random.Range(damageMax, damageMin);
+                enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            }
         }
-        Boss boss = enemyObject.GetComponent<Boss>();
-        if (boss != null)
+        else if (boss != null)
         {
-            int randomDamage = Random.Range(damageMax, damageMin);
-            boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            if (isCritical)
+            {
+                randomDamage = Random.Range((int)(damageMax * criticalDamage), (int)(damageMin * criticalDamage));
+                boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            }
+            else
+            {
+                randomDamage = Random.Range(damageMax, damageMin);
+                boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+            }
         }
     }
     void initializeAttack(int attackId, bool inMine)
@@ -296,7 +325,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         else
         {
             MoveCharacter();
-            autoattackText.color = Color.red;
+            autoattackText.color = Color.white;
         }
     }
     private IEnumerator PerformSkillsInOrder()
@@ -406,6 +435,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         {
             ExitGames.Client.Photon.Hashtable hash = new ExitGames.Client.Photon.Hashtable();
             hash["Level"] = playerLevel;
+            hash["Coin"] = coin;
             PhotonNetwork.LocalPlayer.SetCustomProperties(hash);
         }
         catch
@@ -514,24 +544,45 @@ public class PlayerController : MonoBehaviourPunCallbacks
             sr.color = Color.white;
         }
     }
-    void Die()
+    public void Die()
     {
+        playerHUD.gameObject.SetActive(false);
+        hoisinhCV.gameObject.SetActive(true);
+        dead = true;
         isAutoAttacking = false;
-        transform.position = new Vector3(0, 90, 0);
+        aim.SetTrigger("Die");
+        rb.gravityScale = 20;
+        aim.Play(_playerSkill.baseLayerIndex, 0, 0f);
+        aim.SetLayerWeight(_playerSkill.aimLayerIndex, 0f);
+    }
+    public void HoiSinh()
+    {
         Vector3 spawnPos = GameManager.gamemanager.spawnPoints[Random.Range(0, GameManager.gamemanager.spawnPoints.Length)].position;
         StartCoroutine(Spawn(spawnPos, GameManager.gamemanager.respawnTime));
+        dead = true;
+        _playerSkill.canMove = true;
     }
+
     IEnumerator Spawn(Vector3 spawnPos, float timeToSpawn)
     {
         yield return new WaitForSeconds(timeToSpawn);
         dead = false;
+        playerHUD.gameObject.SetActive(true);
+        hoisinhCV.gameObject.SetActive(false);
         transform.position = spawnPos;
-        currentHP = maxHP;
-        currentMP = maxMP;
         rb.gravityScale = 20f;
         revivalButton.SetActive(false);
         UpdateHealthSlider(currentHP);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
+        photonView.RPC("SetCurrentHP", RpcTarget.All, maxHP,"Idle");
+        photonView.RPC("UpdateHealthSlider", RpcTarget.All,currentHP);
+    }
+
+    [PunRPC]
+    public void SetCurrentHP(int newHP,string name)
+    {
+        currentHP = newHP;
+        aim.Play(name);
     }
     [PunRPC]
      void UpdateNametag(string name)
@@ -540,16 +591,17 @@ public class PlayerController : MonoBehaviourPunCallbacks
     }
     void UpdateHpText(int curHP, int maxHP, int curMP, int maxMP)
     {
-        hpText.text = curHP + "/" + maxHP;
-        mpText.text = curMP + "/" + maxMP;
+        hpText.text = curHP.ToString("N0") + "/" + maxHP.ToString("N0");
+        mpText.text = curMP.ToString("N0") + "/" + maxMP.ToString("N0");
 
     }
-    public void UpdateValue(int maxVal)
+     void UpdateValue(int maxVal)
     {
         maxHealthValue = maxVal;
         healthBar.value = 1.0f;
     }
-    void UpdateHealthSlider(int heal)
+    [PunRPC]
+    public void UpdateHealthSlider(int heal)
     {
         healthBar.value = (float)heal / maxHealthValue;
     }
@@ -563,6 +615,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
         messageText.text = " Bạn đã lụm vàng " + "+" + goldToGive.ToString("N0");
         messageText.color = Color.yellow;
         StartCoroutine(HideMessageAfterDelay(2f));
+        SetHashes();
     }
     [PunRPC]
     void Diamond(int diamondToGive)
@@ -593,6 +646,7 @@ public class PlayerController : MonoBehaviourPunCallbacks
     } 
     public void AddAttack(int amount)
     {
+        damageMin += amount;
         damageMax += amount;
     } public void AddDef(int amount)
     {

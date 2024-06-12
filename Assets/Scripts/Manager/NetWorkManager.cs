@@ -16,7 +16,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     [Header("NetworkManager")]
     private string playerName;
-    public TMP_InputField roomNameInput;
     public Button startgameButton;
     public TextMeshProUGUI playerNameText;
     public TextMeshProUGUI mapValue;
@@ -36,12 +35,12 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     [Header("Map")]
     public MapData[] maps;
     private int currentmap = 0;
+    private int currentServerIndex = 0;
     private List<RoomInfo> roomList;
     public static NetworkManager networkmanager;
     private void Awake()
     {
         PhotonNetwork.AutomaticallySyncScene = true;
-        Connect();
     }
     void Start()
     {
@@ -58,6 +57,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         {
             nameInput.SetActive(true);
         }
+        Connect();
     }
     public void Connect()
     {
@@ -106,7 +106,17 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         properties.Add("map", currentmap);
         options.CustomRoomProperties = properties;
 
-        PhotonNetwork.CreateRoom(roomNameInput.text, options);
+        // Tạo tên phòng theo thứ tự
+        string randomRoomName = GenerateNextServerName();
+        PhotonNetwork.CreateRoom(randomRoomName, options);
+    }
+
+    private string GenerateNextServerName()
+    {
+        string[] serverNames = { "Sever 1", "Sever 2", "Sever 3", "Sever 4", "Sever 5", "Sever 6", "Sever 7" };
+        string nextServerName = serverNames[currentServerIndex];
+        currentServerIndex = (currentServerIndex + 1) % serverNames.Length;
+        return nextServerName;
     }
     public void ChangeMap(int map)
     {
@@ -121,14 +131,14 @@ public class NetworkManager : MonoBehaviourPunCallbacks
         roomList = p_list;
         ClearRoomList();
 
-        Transform content = tabRooms.transform.Find("Panel/Tranform");
+        Transform content = tabRooms.transform.Find("Sever/Tranform");
 
         foreach (RoomInfo a in roomList)
         {
             GameObject newRoomButton = Instantiate(buttonRoom, content) as GameObject;
 
             newRoomButton.transform.Find("Name").GetComponent<TextMeshProUGUI>().text = a.Name;
-            newRoomButton.transform.Find("Players").GetComponent<TextMeshProUGUI>().text = a.PlayerCount + " / " + a.MaxPlayers;
+            //newRoomButton.transform.Find("Players").GetComponent<TextMeshProUGUI>().text = a.PlayerCount + " / " + a.MaxPlayers;
 
             if (a.CustomProperties.ContainsKey("map"))
                 newRoomButton.transform.Find("Map/Name").GetComponent<TextMeshProUGUI>().text = maps[(int)a.CustomProperties["map"]].name;
@@ -142,7 +152,7 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     }
     private void ClearRoomList()
     {
-        Transform content = tabRooms.transform.Find("Panel/Tranform");
+        Transform content = tabRooms.transform.Find("Sever/Tranform");
         foreach (Transform a in content) Destroy(a.gameObject);
     }
     public void JoinRoom(Transform p_button)

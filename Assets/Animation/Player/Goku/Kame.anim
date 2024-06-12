@@ -88,29 +88,22 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
+  - time: 0
+    functionName: StopMove
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.5
     functionName: Skill2Object
     data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.5833333
-    functionName: Skill2Object
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.6666667
-    functionName: Skill2Object
-    data: 
-    objectReferenceParameter: {fileID: 0}
+    objectReferenceParameter: {fileID: 912632213350462443, guid: 0837df97fa1be8a4cbd59ea211ade270, type: 3}
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
   - time: 1
-    functionName: StopMove
+    functionName: StartMove
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0

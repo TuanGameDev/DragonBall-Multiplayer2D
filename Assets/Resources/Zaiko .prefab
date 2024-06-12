@@ -592,7 +592,6 @@ MonoBehaviour:
   aim: {fileID: 3460993992365630263}
   enemyName: Zaiko
   enemyLevel: Level 10
-  dead: Death
   damage: 50
   chaseRange: 10
   attackRange: 2
@@ -608,6 +607,7 @@ MonoBehaviour:
   enemylevelText: {fileID: 3178774743844392219}
   hpText: {fileID: 2347164003961572410}
   InfoPopup: {fileID: 270662441132484548}
+  attackstop: 0
 --- !u!114 &3475357370158023030
 MonoBehaviour:
   m_ObjectHideFlags: 0

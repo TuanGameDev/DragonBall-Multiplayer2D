@@ -219,6 +219,7 @@ MonoBehaviour:
   enemylevelText: {fileID: 3877434702022255417}
   hpText: {fileID: 7269179177201277882}
   InfoPopup: {fileID: 5279774161524843300}
+  attackstop: 0
 --- !u!114 &7485926894852454503
 MonoBehaviour:
   m_ObjectHideFlags: 0

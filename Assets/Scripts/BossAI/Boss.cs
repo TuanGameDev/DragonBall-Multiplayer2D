@@ -14,7 +14,6 @@ public class Boss : MonoBehaviourPun
     [Header("Quản lí")]
     public string enemyName;
     public string enemyLevel;
-    public string dead = "Death";
     private PlayerController[] playerInScene;
     private PlayerController targetPlayer;
     [Header("Tấn Công")]
@@ -40,6 +39,7 @@ public class Boss : MonoBehaviourPun
     public TextMeshProUGUI enemylevelText;
     public TextMeshProUGUI hpText;
     public GameObject InfoPopup;
+    public bool attackstop = false;
     private void Start()
     {
         EnemyStatusInfo(maxHP);
@@ -68,7 +68,15 @@ public class Boss : MonoBehaviourPun
 
             if (dist < attackRange && Time.time - lastattackTime >= attackRate)
             {
-                Attack();
+                if (targetPlayer.currentHP <= 0)
+                {
+                    attackstop = true;
+                    return;
+                }
+                else
+                {
+                    Attack();
+                }
             }
             else if (dist > attackRange)
             {
@@ -80,6 +88,7 @@ public class Boss : MonoBehaviourPun
             else
             {
                 rb.velocity = Vector2.zero;
+                photonView.RPC("FlipLeft", RpcTarget.All);
                 aim.SetBool("Move", false);
             }
         }
@@ -98,6 +107,7 @@ public class Boss : MonoBehaviourPun
     }
     void Attack()
     {
+        attackstop = false;
         aim.SetTrigger("Attack");
         lastattackTime = Time.time;
         targetPlayer.photonView.RPC("TakeDamage", RpcTarget.All, damage);
@@ -148,7 +158,7 @@ public class Boss : MonoBehaviourPun
             instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
             Animator animator = instance.GetComponentInChildren<Animator>();
 
-            if (damageAmount <= 100000)
+            if (damageAmount <= 1000000)
             {
                 animator.Play("normal");
             }
@@ -184,7 +194,7 @@ public class Boss : MonoBehaviourPun
             instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
             Animator animator = instance.GetComponentInChildren<Animator>();
 
-            if (damageAmount <= 100000)
+            if (damageAmount <= 1000000)
             {
                 animator.Play("normal");
             }
@@ -193,7 +203,7 @@ public class Boss : MonoBehaviourPun
     void Die()
     {
         PlayerController player = GetPlayer(curAttackerID);
-        GetPlayer(curAttackerID).photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
+        player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
         PhotonNetwork.Destroy(gameObject);
     }
 

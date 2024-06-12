@@ -17,6 +17,7 @@ public class PlayerSkill : MonoBehaviourPun
     public CoolDown skill1Cooldown;
     public CoolDown skill2Cooldown;
     public CoolDown skill3Cooldown;
+    public CoolDown skill4Cooldown;
     public PlayerController controller;
     private Dictionary<string, CoolDown> cooldowns;
 
@@ -39,8 +40,11 @@ public class PlayerSkill : MonoBehaviourPun
     public int baseLayerIndex;
     public Image cooldownSkill3;
     public TextMeshProUGUI skill3_Text;
-    public GameObject skill3UI;
-    public TextMeshProUGUI skill3UI_Text;
+    [Header("Kỹ năng Ultimate")]
+    public Image cooldownSkill4;
+    public TextMeshProUGUI skill4_Text;
+    public GameObject ultiObject;
+    public Transform utilTranform;
     private void Start()
     {
         InitializeCooldowns();
@@ -62,17 +66,16 @@ public class PlayerSkill : MonoBehaviourPun
     {
         if (controller.faceRight)
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameRight.name, controller.attackPoint.transform.position, Quaternion.identity);
-            FireKame bulletScript = bulletObj.GetComponent<FireKame>();
+            GameObject bulletObj = Instantiate(kameRight, controller.attackPoint.transform.position, Quaternion.identity);
+            SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }
         else
         {
-            GameObject bulletObj = PhotonNetwork.Instantiate(kameLeft.name, controller.attackPoint.position, Quaternion.identity);
-            FireKame bulletScript = bulletObj.GetComponent<FireKame>();
+            GameObject bulletObj = Instantiate(kameLeft, controller.attackPoint.position, Quaternion.identity);
+            SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
         }
-        canMove = false;
     }
     public void Skill2()
     {
@@ -85,7 +88,13 @@ public class PlayerSkill : MonoBehaviourPun
     }
     public void StopMove()
     {
+        canMove = false;
+        controller.rb.gravityScale = 0;
+    }
+    public void StartMove()
+    {
         canMove = true;
+        controller.rb.gravityScale = 20;
     }
     #endregion
     #region Skill 3
@@ -101,6 +110,93 @@ public class PlayerSkill : MonoBehaviourPun
             }
             StartCooldown("skill3", skill3Cooldown.Delay);
         }
+    }
+    #endregion
+    #region Skill4
+    public void Skill4Goku()
+    {
+        if (IsSkillReady("skill4"))
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y + 3f, transform.position.z);
+            GameObject bulletObj = PhotonNetwork.Instantiate(ultiObject.name, utilTranform.transform.position, Quaternion.identity);
+            SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
+            bulletScript.GetComponent<CircleCollider2D>().enabled = false;
+            bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+            controller.aim.SetTrigger("Ultimate");
+            controller.aim.Play(baseLayerIndex, 0, 0f);
+            controller.aim.SetLayerWeight(aimLayerIndex, 0f);
+            StartCooldown("skill4", skill4Cooldown.Delay);
+        }
+    }
+    public void Skill4Vegeta()
+    {
+        if (IsSkillReady("skill4"))
+        {
+            transform.position = new Vector3(transform.position.x, transform.position.y + 2f, transform.position.z);
+            controller.aim.SetTrigger("Ultimate");
+            controller.aim.Play(baseLayerIndex, 0, 0f);
+            controller.aim.SetLayerWeight(aimLayerIndex, 0f);
+            StartCooldown("skill4", skill4Cooldown.Delay);
+        }
+    }
+    public void Skill4ObjectVegeta()
+    {
+        GameObject bulletObj = Instantiate(ultiObject, utilTranform.transform.position, Quaternion.identity);
+        SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
+
+        bulletScript.GetComponent<CircleCollider2D>().enabled = true;
+        bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+        CameraFollow.instance.ShakeCamera(5f, 1f);
+        controller.currentHP = 0;
+        controller.UpdateHealthSlider(controller.currentHP);
+        controller.Die();
+    }
+    public void Skill4ObjectGoku()
+    {
+        GameObject bulletObj = Instantiate(ultiObject, utilTranform.transform.position, Quaternion.identity);
+        SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
+
+        bulletScript.GetComponent<CircleCollider2D>().enabled = true;
+        bulletScript.speed = 20;
+        GameObject nearestEnemy = FindNearestEnemy();
+        if (nearestEnemy != null)
+        {
+            bulletScript.target = nearestEnemy.transform;
+        }
+        bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+        CameraFollow.instance.ShakeCamera(5f, 1f);
+    }
+
+    private GameObject FindNearestEnemy()
+    {
+        GameObject[] enemies = GameObject.FindGameObjectsWithTag("Enemy");
+
+        if (enemies.Length > 0)
+        {
+            GameObject nearestEnemy = enemies[0];
+            float nearestDistance = Vector3.Distance(transform.position, nearestEnemy.transform.position);
+
+            for (int i = 1; i < enemies.Length; i++)
+            {
+                float distance = Vector3.Distance(transform.position, enemies[i].transform.position);
+                if (distance < nearestDistance)
+                {
+                    nearestEnemy = enemies[i];
+                    nearestDistance = distance;
+                }
+            }
+
+            return nearestEnemy;
+        }
+        else
+        {
+            return null;
+        }
+    }
+    public void Skill4Reset()
+    {
+        SkillObject bulletScript = ultiObject.GetComponent<SkillObject>();
+        bulletScript.speed = 0;
     }
     #endregion
     #endregion
@@ -148,16 +244,10 @@ public class PlayerSkill : MonoBehaviourPun
         while (Time.time < endTime)
         {
             float remainingTime = endTime - Time.time;
-            skill3UI_Text.text = remainingTime.ToString("F1");
-            skill3UI_Text.gameObject.SetActive(true);
-            skill3UI.SetActive(true);
             yield return null;
         }
         controller.aim.Play(baseLayerIndex, 0, 0f);
         controller.aim.SetLayerWeight(aimLayerIndex, 0f);
-        skill3UI_Text.text = "0.0";
-        skill3UI_Text.gameObject.SetActive(false);
-        skill3UI.SetActive(false);
     }
     #region Cooldown Skill
     private void InitializeCooldowns()
@@ -166,6 +256,7 @@ public class PlayerSkill : MonoBehaviourPun
         cooldowns.Add("skill1", skill1Cooldown);
         cooldowns.Add("skill2", skill2Cooldown);
         cooldowns.Add("skill3", skill3Cooldown);
+        cooldowns.Add("skill4", skill4Cooldown);
     }
 
     private bool IsSkillReady(string skillName)
@@ -203,10 +294,17 @@ public class PlayerSkill : MonoBehaviourPun
             cooldownImage = cooldownSkill2;
             cooldownText = skill2Text;
         }
-        else if (skillName == "skill3")
+        else 
+        if (skillName == "skill3")
         {
             cooldownImage = cooldownSkill3;
             cooldownText = skill3_Text;
+        }
+        else 
+        if (skillName == "skill4")
+        {
+            cooldownImage = cooldownSkill4;
+            cooldownText = skill4_Text;
         }
 
         if (cooldownImage != null && cooldownText != null)
@@ -238,7 +336,7 @@ public class PlayerSkill : MonoBehaviourPun
             aimLayerIndex = 1;
             controller.aim.SetLayerWeight(aimLayerIndex, 1f);
         }
-        else if (controller.playerLevel > 5 && controller.playerLevel <= 100)
+        else if (controller.playerLevel > 5 && controller.playerLevel <= 1000)
         {
             aimLayerIndex = 2;
             controller.aim.SetLayerWeight(aimLayerIndex, 2f);

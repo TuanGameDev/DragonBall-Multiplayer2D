@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using TMPro;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class PlayerUpGrade : MonoBehaviour
 {
@@ -12,26 +13,37 @@ public class PlayerUpGrade : MonoBehaviour
     public TextMeshProUGUI hpText;
     public TextMeshProUGUI mpText;
     public TextMeshProUGUI defText;
+    public TextMeshProUGUI critText;
     [Header("Popup")]
     public TextMeshProUGUI messageText;
     public TextMeshProUGUI potentialText;
+    public GameObject inventortHUD;
     public GameObject inventoryPopup;
     public GameObject upgradePopup;
-    public PlayerController _playercontroller;
+    public GameObject missionPopup;
+    [Header("Button Nâng cấp")]
+    public Button attackButton;
+    public PlayerController controller;
     private void Start()
     {
+        attackButton.onClick.AddListener(UpGradeAttack);
         if (PlayerPrefs.HasKey("Potential"))
         {
             strengthPotential = PlayerPrefs.GetInt("Potential");
+        }
+        if(controller.damageMax>=2000)
+        {
+            attackButton.interactable = false;
         }
     }
     private void Update()
     {
         UpdateTextPotential(strengthPotential);
-        UpdateTextAttack(_playercontroller.damageMax);
-        UpdateTextHp(_playercontroller.maxHP);
-        UpdateTextMp(_playercontroller.maxMP);
-        UpdateTextDf(_playercontroller.def);
+        UpdateTextAttack(controller.damageMax);
+        UpdateTextHp(controller.maxHP);
+        UpdateTextMp(controller.maxMP);
+        UpdateTextDf(controller.def);
+        UpdateTextCRT(controller.criticalDamage);
     }
     #region Upgrade
     public void UpGradeAttack()
@@ -46,13 +58,13 @@ public class PlayerUpGrade : MonoBehaviour
             PlayerPrefs.SetInt("DamageMax", PlayerController.me.damageMax);
             strengthPotential -= point;
             PlayerPrefs.SetInt("Potential", strengthPotential);
-            messageText.text = "You have successfully upgraded Attack!";
+            messageText.text = "Bạn đã nâng câp tấn công thành công";
             messageText.color = Color.green;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
         else
         {
-            messageText.text = "You don't have enough coins to upgrade Attack!";
+            messageText.text = "Bạn không đủ điểm tiềm năng";
             messageText.color = Color.red;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
@@ -69,13 +81,13 @@ public class PlayerUpGrade : MonoBehaviour
             PlayerPrefs.SetInt("maxHP", PlayerController.me.maxHP);
             strengthPotential -= point;
             PlayerPrefs.SetInt("Potential", strengthPotential);
-            messageText.text = "You have successfully upgraded Health!";
+            messageText.text = "Bạn đã nâng câp hp thành công";
             messageText.color = Color.green;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
         else
         {
-            messageText.text = "You don't have enough coins to upgrade Health!";
+            messageText.text = "Bạn không đủ điểm tiềm năng";
             messageText.color = Color.red;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
@@ -92,13 +104,13 @@ public class PlayerUpGrade : MonoBehaviour
             PlayerPrefs.SetInt("maxMP", PlayerController.me.maxMP);
             strengthPotential -= point;
             PlayerPrefs.SetInt("Potential", strengthPotential);
-            messageText.text = "You have successfully upgraded Mana!";
+            messageText.text = "Bạn đã nâng câp ki thành công";
             messageText.color = Color.green;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
         else
         {
-            messageText.text = "You don't have enough coins to upgrade Mana!";
+            messageText.text = "Bạn không đủ điểm tiềm năng";
             messageText.color = Color.red;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
@@ -113,13 +125,34 @@ public class PlayerUpGrade : MonoBehaviour
             PlayerPrefs.SetInt("DF", PlayerController.me.def);
             strengthPotential -= point;
             PlayerPrefs.SetInt("Potential", strengthPotential);
-            messageText.text = "You have successfully upgraded DEF!";
+            messageText.text = "Bạn đã nâng câp giáp thành công";
             messageText.color = Color.green;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
         else
         {
-            messageText.text = "You don't have enough coins to upgrade DEF!";
+            messageText.text = "Bạn không đủ điểm tiềm năng";
+            messageText.color = Color.red;
+            StartCoroutine(HideMessageAfterDelay(2f));
+        }
+    }
+    public void UpGradeCrt()
+    {
+        int point = 20;
+
+        if (strengthPotential >= point)
+        {
+            PlayerController.me.criticalDamage += 1;
+            PlayerPrefs.SetInt("CritDamage", PlayerController.me.criticalDamage);
+            strengthPotential -= point;
+            PlayerPrefs.SetInt("Potential", strengthPotential);
+            messageText.text = "Bạn đã nâng câp chí mạng thành công";
+            messageText.color = Color.green;
+            StartCoroutine(HideMessageAfterDelay(2f));
+        }
+        else
+        {
+            messageText.text = "Bạn không đủ điểm tiềm năng";
             messageText.color = Color.red;
             StartCoroutine(HideMessageAfterDelay(2f));
         }
@@ -133,27 +166,54 @@ public class PlayerUpGrade : MonoBehaviour
     }
     public void UpdateTextAttack(int attack)
     {
-        attackText.text = "Tấn Công: " + attack;
+        string attackString = "Tấn công: " + attack;
+        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        attackText.text = attackString + potentialString;
     }
     public void UpdateTextHp(int health)
     {
-        hpText.text = "HP: " + health;
+        string hpString = "HP: " + health;
+        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        hpText.text = hpString + potentialString;
     }
-    public void UpdateTextMp(int mana)
+    public void UpdateTextMp(int ki)
     {
-        mpText.text = "KI: " + mana;
+        string mpString = "KI: " + ki;
+        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        mpText.text = mpString + potentialString;
     }
     public void UpdateTextDf(int df)
     {
-        defText.text = "Giáp: " + df;
+        string dfString = "Giáp: " + df;
+        string potentialString = "\n<size=25>Bạn cần 5 điểm tiềm năng để nâng cấp</size>";
+        defText.text = dfString + potentialString;
     }
-    public void ShowHUD()
+    public void UpdateTextCRT(int crt)
+    {
+        string crtString = "Chí mạng: " + crt;
+        string potentialString = "\n<size=25>Bạn cần 10 điểm tiềm năng để nâng cấp</size>";
+        critText.text = crtString + potentialString;
+    }
+    public void ShowUI()
+    {
+        inventortHUD.SetActive(true);
+    }
+    public void ShowInventory()
     {
         inventoryPopup.SetActive(true);
+        upgradePopup.SetActive(false);
+        missionPopup.SetActive(false);
     }
     public void ShowUpgrade()
     {
         upgradePopup.SetActive(true);
+        inventoryPopup.SetActive(false);
+        missionPopup.SetActive(false);
+    }
+    public void ShowMission()
+    {
+        missionPopup.SetActive(true);
+        upgradePopup.SetActive(false);
         inventoryPopup.SetActive(false);
     }
     private IEnumerator HideMessageAfterDelay(float delay)

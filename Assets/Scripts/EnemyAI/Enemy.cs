@@ -45,6 +45,7 @@ public class Enemy : MonoBehaviourPun
     public TextMeshProUGUI enemylevelText;
     public TextMeshProUGUI hpText;
     public GameObject InfoPopup;
+    public bool attackstop = false;
     private void Start()
     {
         EnemyStatusInfo(maxHP);
@@ -57,7 +58,7 @@ public class Enemy : MonoBehaviourPun
     {
         if (!PhotonNetwork.IsMasterClient)
             return;
-        if (!isAttacking)
+        if (PhotonNetwork.InRoom && !isAttacking)
         {
             photonView.RPC("Patrol", RpcTarget.All);
         }
@@ -77,7 +78,15 @@ public class Enemy : MonoBehaviourPun
 
             if (dist < attackRange && Time.time - lastattackTime >= attackRate)
             {
-                Attack();
+                if (targetPlayer.currentHP <= 0)
+                {
+                    attackstop = true;
+                    return;
+                }
+                else
+                {
+                    Attack();
+                }
                 photonView.RPC("ResetlocalScale", RpcTarget.All);
             }
             else if (dist > attackRange)
@@ -106,6 +115,7 @@ public class Enemy : MonoBehaviourPun
     }
     void Attack()
     {
+        attackstop = false;
         aim.SetTrigger("Attack");
         lastattackTime = Time.time;
         targetPlayer.photonView.RPC("TakeDamage", RpcTarget.All, damage);
@@ -153,7 +163,7 @@ public class Enemy : MonoBehaviourPun
             instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
             Animator animator = instance.GetComponentInChildren<Animator>();
 
-            if (damageAmount <= 100000)
+            if (damageAmount <= 1000000)
             {
                 animator.Play("normal");
             }
@@ -189,7 +199,7 @@ public class Enemy : MonoBehaviourPun
             instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
             Animator animator = instance.GetComponentInChildren<Animator>();
 
-            if (damageAmount <= 100000)
+            if (damageAmount <= 1000000)
             {
                 animator.Play("normal");
             }
@@ -198,9 +208,7 @@ public class Enemy : MonoBehaviourPun
     void Die()
     {
         PlayerController player = GetPlayer(curAttackerID);
-        GetPlayer(curAttackerID).photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
-        if (objectcoinDead != string.Empty)
-            PhotonNetwork.Instantiate(objectcoinDead, transform.position, Quaternion.identity);
+        player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
         PhotonNetwork.Destroy(gameObject);
     }
 

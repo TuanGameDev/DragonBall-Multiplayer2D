@@ -110,6 +110,9 @@ MonoBehaviour:
   - LeaveRoom
   - DestroyEnemy
   - UpdateExperience
+  - Skill2RPC
+  - SetCurrentHP
+  - SwitchScene
   DisableAutoOpenWizard: 1
   ShowSettings: 1
   DevRegionSetOnce: 1

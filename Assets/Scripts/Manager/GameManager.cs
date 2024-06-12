@@ -4,6 +4,7 @@ using System.Linq;
 using System.Collections.Generic;
 using Photon.Realtime;
 using Photon.Pun.Demo.PunBasics;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviourPunCallbacks
 {
@@ -39,5 +40,21 @@ public class GameManager : MonoBehaviourPunCallbacks
     public override void OnJoinedRoom()
     {
         SpawnPlayer();
+    }
+    public void LeaveRoom()
+    {
+        if (PhotonNetwork.InRoom)
+        {
+            PhotonNetwork.LeaveRoom();
+        }
+        else
+        {
+            Debug.LogWarning("Bạn không ở trong phòng!");
+        }
+    }
+
+    public override void OnLeftRoom()
+    {
+        SceneManager.LoadScene("Main");
     }
 }

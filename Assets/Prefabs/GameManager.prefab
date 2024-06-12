@@ -32,7 +32,7 @@ Transform:
   m_Children:
   - {fileID: 579577527150765301}
   - {fileID: 1234686046182939639}
-  - {fileID: 6038348530273599059}
+  - {fileID: 7834666839203275900}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &7514601177172961895
@@ -50,7 +50,7 @@ MonoBehaviour:
   spawnPoints:
   - {fileID: 579577527150765301}
   - {fileID: 1234686046182939639}
-  respawnTime: 3
+  respawnTime: 1
 --- !u!1 &1258370896371673205
 GameObject:
   m_ObjectHideFlags: 0
@@ -113,7 +113,7 @@ Transform:
   m_Children: []
   m_Father: {fileID: 9153003682845442753}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!1 &8323236279840891529
+--- !u!1 &2716244711435328528
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -121,9 +121,9 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 6038348530273599059}
-  - component: {fileID: 796794576609179824}
-  - component: {fileID: 1651671029173049764}
+  - component: {fileID: 7834666839203275900}
+  - component: {fileID: 5325773455667262924}
+  - component: {fileID: 2151532999316430238}
   m_Layer: 0
   m_Name: EventSystem
   m_TagString: Untagged
@@ -131,28 +131,28 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &6038348530273599059
+--- !u!4 &7834666839203275900
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8323236279840891529}
+  m_GameObject: {fileID: 2716244711435328528}
   serializedVersion: 2
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: -0.93156433, y: 3.3755522, z: -0.006386757}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_ConstrainProportionsScale: 0
   m_Children: []
   m_Father: {fileID: 9153003682845442753}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &796794576609179824
+--- !u!114 &5325773455667262924
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8323236279840891529}
+  m_GameObject: {fileID: 2716244711435328528}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 76c392e42b5098c458856cdf6ecaaaa1, type: 3}
@@ -161,13 +161,13 @@ MonoBehaviour:
   m_FirstSelected: {fileID: 0}
   m_sendNavigationEvents: 1
   m_DragThreshold: 10
---- !u!114 &1651671029173049764
+--- !u!114 &2151532999316430238
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 8323236279840891529}
+  m_GameObject: {fileID: 2716244711435328528}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 4f231c4fb786f3946a6b90b886c48677, type: 3}

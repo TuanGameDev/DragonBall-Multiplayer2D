@@ -21,15 +21,15 @@ AnimationClip:
   - serializedVersion: 2
     curve:
     - time: 0
-      value: {fileID: 21300000, guid: d12fa9b4ecbe0904096111fd88edf932, type: 3}
+      value: {fileID: 21300000, guid: 32fe593ec8e20e8408398b350fbe477b, type: 3}
+    - time: 0.083333336
+      value: {fileID: 21300000, guid: 535501b5e27efbc418b4cd15e136deeb, type: 3}
     - time: 0.16666667
-      value: {fileID: 21300000, guid: 712097c37741cd343aeaf49263899f7b, type: 3}
-    - time: 0.33333334
-      value: {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
+      value: {fileID: 21300000, guid: ca487dfb4995132439fd8732308ce589, type: 3}
     - time: 0.5
-      value: {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
+      value: {fileID: 21300000, guid: 0b1ed325ac75372468cafa33d312ec9d, type: 3}
     - time: 1
-      value: {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
+      value: {fileID: 21300000, guid: 0b1ed325ac75372468cafa33d312ec9d, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -52,11 +52,11 @@ AnimationClip:
       isIntCurve: 0
       isSerializeReferenceCurve: 0
     pptrCurveMapping:
-    - {fileID: 21300000, guid: d12fa9b4ecbe0904096111fd88edf932, type: 3}
-    - {fileID: 21300000, guid: 712097c37741cd343aeaf49263899f7b, type: 3}
-    - {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
-    - {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
-    - {fileID: 21300000, guid: 48266c512ec1ebc4e8cc5ae1987b9797, type: 3}
+    - {fileID: 21300000, guid: 32fe593ec8e20e8408398b350fbe477b, type: 3}
+    - {fileID: 21300000, guid: 535501b5e27efbc418b4cd15e136deeb, type: 3}
+    - {fileID: 21300000, guid: ca487dfb4995132439fd8732308ce589, type: 3}
+    - {fileID: 21300000, guid: 0b1ed325ac75372468cafa33d312ec9d, type: 3}
+    - {fileID: 21300000, guid: 0b1ed325ac75372468cafa33d312ec9d, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -82,6 +82,13 @@ AnimationClip:
   m_HasGenericRootTransform: 0
   m_HasMotionFloatCurves: 0
   m_Events:
+  - time: 0
+    functionName: StopMove
+    data: 
+    objectReferenceParameter: {fileID: 0}
+    floatParameter: 0
+    intParameter: 0
+    messageOptions: 0
   - time: 0.5
     functionName: Skill2Object
     data: 
@@ -89,22 +96,8 @@ AnimationClip:
     floatParameter: 0
     intParameter: 0
     messageOptions: 0
-  - time: 0.5833333
-    functionName: Skill2Object
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
-  - time: 0.6666667
-    functionName: Skill2Object
-    data: 
-    objectReferenceParameter: {fileID: 0}
-    floatParameter: 0
-    intParameter: 0
-    messageOptions: 0
   - time: 1
-    functionName: StopMove
+    functionName: StartMove
     data: 
     objectReferenceParameter: {fileID: 0}
     floatParameter: 0
