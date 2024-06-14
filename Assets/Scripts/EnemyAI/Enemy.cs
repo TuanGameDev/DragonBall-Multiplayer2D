@@ -9,6 +9,7 @@ using Photon.Realtime;
 using ExitGames.Client.Photon;
 using System;
 using System.Linq;
+using System.Reflection;
 public class Enemy : MonoBehaviourPun
 {
     public SpriteRenderer sr;
@@ -209,6 +210,7 @@ public class Enemy : MonoBehaviourPun
     {
         PlayerController player = GetPlayer(curAttackerID);
         player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
+        player.KillKhiDen();
         PhotonNetwork.Destroy(gameObject);
     }
 

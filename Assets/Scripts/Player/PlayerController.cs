@@ -10,6 +10,7 @@ using Unity.VisualScripting;
 using UnityEngine.SceneManagement;
 using ExitGames.Client.Photon;
 using Unity.Burst.CompilerServices;
+using System.Reflection;
 
 public class PlayerController : MonoBehaviourPun
 {
@@ -81,6 +82,7 @@ public class PlayerController : MonoBehaviourPun
     public PlayerUpGrade _playerUpgrade;
     public PlayerSkill _playerSkill;
     public PlayerInfomation _playerinfomation;
+    public Mission _mission;
     [PunRPC]
     public void InitializePlayer(Player player)
     {
@@ -651,6 +653,13 @@ public class PlayerController : MonoBehaviourPun
     } public void AddDef(int amount)
     {
         def += amount;
+    }
+    #endregion
+    #region Mission
+    public void KillKhiDen()
+    {
+        int enemiesKilled = 1;
+        _mission.UpdateEnemyProgress(enemiesKilled);
     }
     #endregion
     #region IEnumerator Attack và Skill
