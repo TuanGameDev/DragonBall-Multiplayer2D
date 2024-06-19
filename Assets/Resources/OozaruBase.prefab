@@ -294,6 +294,7 @@ MonoBehaviour:
   xpToGive: 200
   isAttacking: 0
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
+  itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 7720669245702346058}
   enemylevelText: {fileID: 7578828099037823879}
   hpText: {fileID: 5622532728995937203}

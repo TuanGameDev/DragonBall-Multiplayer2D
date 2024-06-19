@@ -23,21 +23,45 @@ public class PlayerUpGrade : MonoBehaviour
     public GameObject missionPopup;
     [Header("Button Nâng cấp")]
     public Button attackButton;
+    public Button hpButton;
+    public Button kiButton;
+    public Button defButton;
+    public Button crtButton;
     public PlayerController controller;
     private void Start()
     {
         attackButton.onClick.AddListener(UpGradeAttack);
+        hpButton.onClick.AddListener(UpGradeHp);
+        kiButton.onClick.AddListener(UpGradeMp);
+        defButton.onClick.AddListener(UpGradeDef);
+        crtButton.onClick.AddListener(UpGradeCrt);
         if (PlayerPrefs.HasKey("Potential"))
         {
             strengthPotential = PlayerPrefs.GetInt("Potential");
         }
-        if(controller.damageMax>=2000)
-        {
-            attackButton.interactable = false;
-        }
     }
     private void Update()
     {
+        if (controller.damageMax >= 5000)
+        {
+            attackButton.interactable = false;
+        }
+        if (controller.currentHP >= 1000000)
+        {
+            hpButton.interactable = false;
+        }
+        if (controller.currentMP >= 1000000)
+        {
+            kiButton.interactable = false;
+        }
+        if (controller.def >= 100)
+        {
+            defButton.interactable = false;
+        }
+        if (controller.criticalDamage >= 5)
+        {
+            crtButton.interactable = false;
+        }
         UpdateTextPotential(strengthPotential);
         UpdateTextAttack(controller.damageMax);
         UpdateTextHp(controller.maxHP);
@@ -52,8 +76,8 @@ public class PlayerUpGrade : MonoBehaviour
 
         if (strengthPotential >= point)
         {
-            PlayerController.me.damageMin += 10;
-            PlayerController.me.damageMax += 10;
+            PlayerController.me.damageMin += 20;
+            PlayerController.me.damageMax += 20;
             PlayerPrefs.SetInt("DamageMin", PlayerController.me.damageMin);
             PlayerPrefs.SetInt("DamageMax", PlayerController.me.damageMax);
             strengthPotential -= point;
@@ -138,7 +162,7 @@ public class PlayerUpGrade : MonoBehaviour
     }
     public void UpGradeCrt()
     {
-        int point = 20;
+        int point = 5;
 
         if (strengthPotential >= point)
         {
@@ -167,31 +191,31 @@ public class PlayerUpGrade : MonoBehaviour
     public void UpdateTextAttack(int attack)
     {
         string attackString = "Tấn công: " + attack;
-        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        string potentialString = "\n<size=20>Bạn cần 1 điểm tiềm năng để nâng cấp và cộng 20 tấn công</size>";
         attackText.text = attackString + potentialString;
     }
     public void UpdateTextHp(int health)
     {
         string hpString = "HP: " + health;
-        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        string potentialString = "\n<size=20>Bạn cần 1 điểm tiềm năng để nâng cấp cộng 20 HP</size>";
         hpText.text = hpString + potentialString;
     }
     public void UpdateTextMp(int ki)
     {
         string mpString = "KI: " + ki;
-        string potentialString = "\n<size=25>Bạn cần 1 điểm tiềm năng để nâng cấp</size>";
+        string potentialString = "\n<size=20>Bạn cần 1 điểm tiềm năng để nâng cấp cộng 20 KI</size>";
         mpText.text = mpString + potentialString;
     }
     public void UpdateTextDf(int df)
     {
         string dfString = "Giáp: " + df;
-        string potentialString = "\n<size=25>Bạn cần 5 điểm tiềm năng để nâng cấp</size>";
+        string potentialString = "\n<size=20>Bạn cần 5 điểm tiềm năng để nâng cấp và cộng 5 giáp</size>";
         defText.text = dfString + potentialString;
     }
     public void UpdateTextCRT(int crt)
     {
         string crtString = "Chí mạng: " + crt;
-        string potentialString = "\n<size=25>Bạn cần 10 điểm tiềm năng để nâng cấp</size>";
+        string potentialString = "\n<size=20>Bạn cần 5 điểm tiềm năng để nâng cấp và cộng 1 chí mạng</size>";
         critText.text = crtString + potentialString;
     }
     public void ShowUI()

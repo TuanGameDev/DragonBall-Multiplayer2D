@@ -35,6 +35,7 @@ public class Boss : MonoBehaviourPun
     public int xpToGive;
     [Header("UI")]
     public GameObject damPopUp;
+    public GameObject itemObject;
     public TextMeshProUGUI enemynametagText;
     public TextMeshProUGUI enemylevelText;
     public TextMeshProUGUI hpText;
@@ -50,46 +51,46 @@ public class Boss : MonoBehaviourPun
     }
     private void Update()
     {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
         if (targetPlayer != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.transform.position);
             float face = targetPlayer.transform.position.x - transform.position.x;
-
-            if (face > 0)
+            if (photonView.IsMine)
             {
-                photonView.RPC("FlipLeft", RpcTarget.All);
-            }
-            else
-            {
-                photonView.RPC("FlipRight", RpcTarget.All);
-            }
-
-            if (dist < attackRange && Time.time - lastattackTime >= attackRate)
-            {
-                if (targetPlayer.currentHP <= 0)
+                if (face > 0)
                 {
-                    attackstop = true;
-                    return;
+                    photonView.RPC("FlipLeft", RpcTarget.All);
                 }
                 else
                 {
-                    Attack();
+                    photonView.RPC("FlipRight", RpcTarget.All);
                 }
-            }
-            else if (dist > attackRange)
-            {
-                Vector3 dir = targetPlayer.transform.position - transform.position;
-                rb.velocity = dir.normalized * moveSpeed;
-                photonView.RPC("FlipLeft", RpcTarget.All);
-                aim.SetBool("Move", true);
-            }
-            else
-            {
-                rb.velocity = Vector2.zero;
-                photonView.RPC("FlipLeft", RpcTarget.All);
-                aim.SetBool("Move", false);
+
+                if (dist < attackRange && Time.time - lastattackTime >= attackRate)
+                {
+                    if (targetPlayer.currentHP <= 0)
+                    {
+                        attackstop = true;
+                        return;
+                    }
+                    else
+                    {
+                        Attack();
+                    }
+                }
+                else if (dist > attackRange)
+                {
+                    Vector3 dir = targetPlayer.transform.position - transform.position;
+                    rb.velocity = dir.normalized * moveSpeed;
+                    photonView.RPC("FlipLeft", RpcTarget.All);
+                    aim.SetBool("Move", true);
+                }
+                else
+                {
+                    rb.velocity = Vector2.zero;
+                    photonView.RPC("FlipLeft", RpcTarget.All);
+                    aim.SetBool("Move", false);
+                }
             }
         }
         DetectPlayer();
@@ -133,6 +134,7 @@ public class Boss : MonoBehaviourPun
                 if (targetPlayer == null)
                 {
                     targetPlayer = player;
+                    attackstop = false;
                 }
             }
         }
@@ -147,30 +149,33 @@ public class Boss : MonoBehaviourPun
     [PunRPC]
     public void TakeDamage(int attackerId, int damageAmount)
     {
-        currentHP -= damageAmount;
-        curAttackerID = attackerId;
-        photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
-        photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
-        if (damPopUp != null)
+        if (photonView.IsMine)
         {
-            Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
-            GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
-            instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
-            Animator animator = instance.GetComponentInChildren<Animator>();
-
-            if (damageAmount <= 1000000)
+            currentHP -= damageAmount;
+            curAttackerID = attackerId;
+            photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
+            photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
+            if (damPopUp != null)
             {
-                animator.Play("normal");
+                Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
+                GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
+                instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
+                Animator animator = instance.GetComponentInChildren<Animator>();
+
+                if (damageAmount <= 1000000)
+                {
+                    animator.Play("normal");
+                }
+                photonView.RPC("ShowDamPopUp", RpcTarget.Others, popUpPosition, damageAmount);
             }
-            photonView.RPC("ShowDamPopUp", RpcTarget.Others, popUpPosition, damageAmount);
-        }
-        if (currentHP <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            photonView.RPC("FlasDamage", RpcTarget.All);
+            if (currentHP <= 0)
+            {
+                Die();
+            }
+            else
+            {
+                photonView.RPC("FlasDamage", RpcTarget.All);
+            }
         }
     }
     [PunRPC]
@@ -204,9 +209,14 @@ public class Boss : MonoBehaviourPun
     {
         PlayerController player = GetPlayer(curAttackerID);
         player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
-        PhotonNetwork.Destroy(gameObject);
+        PhotonNetwork.Instantiate(itemObject.name, transform.position, Quaternion.identity);
+        photonView.RPC("RPCDie", RpcTarget.All);
     }
-
+    [PunRPC]
+    private void RPCDie()
+    {
+        Destroy(gameObject);
+    }
     public PlayerController GetPlayer(int playerId)
     {
         return playerInScene.FirstOrDefault(x => x.id == playerId);

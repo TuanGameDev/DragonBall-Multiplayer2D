@@ -42,6 +42,7 @@ public class Enemy : MonoBehaviourPun
     public bool isAttacking = false;
     [Header("UI")]
     public GameObject damPopUp;
+    public GameObject itemObject;
     public TextMeshProUGUI enemynametagText;
     public TextMeshProUGUI enemylevelText;
     public TextMeshProUGUI hpText;
@@ -57,50 +58,56 @@ public class Enemy : MonoBehaviourPun
     }
     private void Update()
     {
-        if (!PhotonNetwork.IsMasterClient)
-            return;
-        if (PhotonNetwork.InRoom && !isAttacking)
+    /*    if (PhotonNetwork.InRoom && !isAttacking)
         {
-            photonView.RPC("Patrol", RpcTarget.All);
-        }
+            if (photonView.IsMine)
+            {
+                photonView.RPC("Patrol", RpcTarget.All);
+            }
+        }*/
+
         if (targetPlayer != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.transform.position);
             float face = targetPlayer.transform.position.x - transform.position.x;
 
-            if (face > 0)
+            if (photonView.IsMine)
             {
-                photonView.RPC("FlipRight", RpcTarget.All);
-            }
-            else
-            {
-                photonView.RPC("FlipLeft", RpcTarget.All);
-            }
-
-            if (dist < attackRange && Time.time - lastattackTime >= attackRate)
-            {
-                if (targetPlayer.currentHP <= 0)
+                if (face > 0)
                 {
-                    attackstop = true;
-                    return;
+                    photonView.RPC("FlipRight", RpcTarget.All);
                 }
                 else
                 {
-                    Attack();
+                    photonView.RPC("FlipLeft", RpcTarget.All);
                 }
-                photonView.RPC("ResetlocalScale", RpcTarget.All);
-            }
-            else if (dist > attackRange)
-            {
-                Vector3 dir = targetPlayer.transform.position - transform.position;
-                photonView.RPC("FlipRight", RpcTarget.All);
-            }
-            else
-            {
-                rb.velocity = Vector2.zero;
-                aim.SetBool("Move", false);
+
+                if (dist < attackRange && Time.time - lastattackTime >= attackRate)
+                {
+                    if (targetPlayer.currentHP <= 0)
+                    {
+                        attackstop = true;
+                        return;
+                    }
+                    else
+                    {
+                        Attack();
+                    }
+                    photonView.RPC("ResetlocalScale", RpcTarget.All);
+                }
+                else if (dist > attackRange)
+                {
+                    Vector3 dir = targetPlayer.transform.position - transform.position;
+                    photonView.RPC("FlipRight", RpcTarget.All);
+                }
+                else
+                {
+                    rb.velocity = Vector2.zero;
+                    aim.SetBool("Move", false);
+                }
             }
         }
+
         DetectPlayer();
     }
     #region Di chuyển và Tấn Công
@@ -127,7 +134,7 @@ public class Enemy : MonoBehaviourPun
         playerInScene = FindObjectsOfType<PlayerController>();
         foreach (PlayerController player in playerInScene)
         {
-            float dist = Vector2.Distance(transform.position, player.transform.position);
+            float dist = Vector2.Distance(player.transform.position,transform.position);
             if (player == targetPlayer)
             {
                 if (dist > chaseRange)
@@ -153,30 +160,33 @@ public class Enemy : MonoBehaviourPun
     [PunRPC]
     public void TakeDamage(int attackerId, int damageAmount)
     {
-        currentHP -= damageAmount;
-        curAttackerID = attackerId;
-        photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
-        photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
-        if (damPopUp != null)
+        if (photonView.IsMine)
         {
-            Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
-            GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
-            instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
-            Animator animator = instance.GetComponentInChildren<Animator>();
-
-            if (damageAmount <= 1000000)
+            currentHP -= damageAmount;
+            curAttackerID = attackerId;
+            photonView.RPC("UpdateHpText", RpcTarget.All, currentHP);
+            photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
+            if (damPopUp != null)
             {
-                animator.Play("normal");
+                Vector3 popUpPosition = transform.position + new Vector3(0, 2, 0);
+                GameObject instance = Instantiate(damPopUp, popUpPosition, Quaternion.identity);
+                instance.GetComponentInChildren<TextMeshProUGUI>().text = "-" + damageAmount.ToString("N0") + " Hit ";
+                Animator animator = instance.GetComponentInChildren<Animator>();
+
+                if (damageAmount <= 1000000)
+                {
+                    animator.Play("normal");
+                }
+                photonView.RPC("ShowDamPopUp", RpcTarget.Others, popUpPosition, damageAmount);
             }
-            photonView.RPC("ShowDamPopUp", RpcTarget.Others, popUpPosition, damageAmount);
-        }
-        if (currentHP <= 0)
-        {
-            Die();
-        }
-        else
-        {
-            photonView.RPC("FlasDamage", RpcTarget.All);
+            if (currentHP <= 0)
+            {
+                Die();
+            }
+            else
+            {
+                photonView.RPC("FlasDamage", RpcTarget.All);
+            }
         }
     }
     [PunRPC]
@@ -211,9 +221,14 @@ public class Enemy : MonoBehaviourPun
         PlayerController player = GetPlayer(curAttackerID);
         player.photonView.RPC("EarnExp", player.photonPlayer, xpToGive);
         player.KillKhiDen();
-        PhotonNetwork.Destroy(gameObject);
+        PhotonNetwork.Instantiate(itemObject.name, transform.position, Quaternion.identity);
+        photonView.RPC("RPCDie", RpcTarget.All);
     }
-
+    [PunRPC]
+    private void RPCDie()
+    {
+        Destroy(gameObject);
+    }
     public PlayerController GetPlayer(int playerId)
     {
         return playerInScene.FirstOrDefault(x => x.id == playerId);

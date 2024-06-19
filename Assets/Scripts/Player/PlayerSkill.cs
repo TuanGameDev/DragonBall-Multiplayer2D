@@ -85,6 +85,7 @@ public class PlayerSkill : MonoBehaviourPun
             controller.aim.SetTrigger("Skill_2");
             StartCooldown("skill2", skill2Cooldown.Delay);
         }
+        controller.isAutoAttacking = false;
     }
     public void StopMove()
     {
@@ -110,6 +111,7 @@ public class PlayerSkill : MonoBehaviourPun
             }
             StartCooldown("skill3", skill3Cooldown.Delay);
         }
+        controller.isAutoAttacking = false;
     }
     #endregion
     #region Skill4
@@ -127,6 +129,7 @@ public class PlayerSkill : MonoBehaviourPun
             controller.aim.SetLayerWeight(aimLayerIndex, 0f);
             StartCooldown("skill4", skill4Cooldown.Delay);
         }
+        controller.isAutoAttacking = false;
     }
     public void Skill4Vegeta()
     {
@@ -138,6 +141,7 @@ public class PlayerSkill : MonoBehaviourPun
             controller.aim.SetLayerWeight(aimLayerIndex, 0f);
             StartCooldown("skill4", skill4Cooldown.Delay);
         }
+        controller.isAutoAttacking = false;
     }
     public void Skill4ObjectVegeta()
     {

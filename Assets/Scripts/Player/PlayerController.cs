@@ -38,7 +38,7 @@ public class PlayerController : MonoBehaviourPun
     public TextMeshProUGUI autoattackText;
     public Button autoattackButton;
     public Transform currentTarget;
-    private bool isAutoAttacking = false;
+    public bool isAutoAttacking = false;
     [Header("Tấn Công và SkillCooldown")]
     public Button attackButton;
     public Image cooldownAttack;
@@ -238,10 +238,14 @@ public class PlayerController : MonoBehaviourPun
     }
     public void Attack()
     {
-        if(currentTarget!=null)
+        if (currentTarget != null)
         {
             lastAttackTime = Time.time;
-            RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.right, attackRange);
+
+            // Sử dụng LayerMask để chỉ lấy đối tượng thuộc lớp "Enemy"
+            int layerMask = ~(1 << LayerMask.NameToLayer("Player"));
+            RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.forward, attackRange, layerMask);
+
             initializeAttack(id, photonView.IsMine);
 
             if (hit.collider != null && photonView.IsMine)
@@ -270,12 +274,12 @@ public class PlayerController : MonoBehaviourPun
             if (isCritical)
             {
                 randomDamage = Random.Range((int)(damageMax * criticalDamage), (int)(damageMin * criticalDamage));
-                enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+                enemy.photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
             }
             else
             {
                 randomDamage = Random.Range(damageMax, damageMin);
-                enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+                enemy.photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
             }
         }
         else if (boss != null)
@@ -283,12 +287,12 @@ public class PlayerController : MonoBehaviourPun
             if (isCritical)
             {
                 randomDamage = Random.Range((int)(damageMax * criticalDamage), (int)(damageMin * criticalDamage));
-                boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+                boss.photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
             }
             else
             {
                 randomDamage = Random.Range(damageMax, damageMin);
-                boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, warriorID, randomDamage);
+                boss.photonView.RPC("TakeDamage", RpcTarget.All, warriorID, randomDamage);
             }
         }
     }
@@ -320,7 +324,7 @@ public class PlayerController : MonoBehaviourPun
             }
             else
             {
-                FindNearestEnemy();
+                photonView.RPC("FindNearestEnemy", RpcTarget.All);
             }
             autoattackText.color = Color.green;
         }
@@ -333,10 +337,7 @@ public class PlayerController : MonoBehaviourPun
     private IEnumerator PerformSkillsInOrder()
     {
         Attack();
-
         yield return new WaitForSeconds(3f);
-
-        _playerSkill.Skill3();
     }
     private void OnTriggerEnter2D(Collider2D other)
     {
@@ -376,7 +377,8 @@ public class PlayerController : MonoBehaviourPun
             }
         }
     }
-    private void FindNearestEnemy()
+    [PunRPC]
+     void FindNearestEnemy()
     {
         GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
 

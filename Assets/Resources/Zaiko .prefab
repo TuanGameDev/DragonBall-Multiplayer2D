@@ -603,6 +603,7 @@ MonoBehaviour:
   curAttackerID: 0
   xpToGive: 5000
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
+  itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 3410868153634848780}
   enemylevelText: {fileID: 3178774743844392219}
   hpText: {fileID: 2347164003961572410}

@@ -189,7 +189,7 @@ MonoBehaviour:
   moveDirection: {x: 0, y: 0}
   rb: {fileID: 3265506517074087434}
   damage: 1000
-  increaseAttack: 1000
+  increaseAttack: 100
   target: {fileID: 0}
 --- !u!114 &1970689524859655187
 MonoBehaviour:

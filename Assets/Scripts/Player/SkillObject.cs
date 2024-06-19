@@ -47,12 +47,12 @@ public class SkillObject : MonoBehaviourPun
         Enemy enemy = enemyObject.GetComponent<Enemy>();
         if (enemy != null)
         {
-            enemy.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
+            enemy.photonView.RPC("TakeDamage", RpcTarget.All, this.attackId, damage);
         }
         Boss boss = enemyObject.GetComponent<Boss>();
         if (boss != null)
         {
-            boss.photonView.RPC("TakeDamage", RpcTarget.MasterClient, this.attackId, damage);
+            boss.photonView.RPC("TakeDamage", RpcTarget.All, this.attackId, damage);
         }
     }
     [PunRPC]

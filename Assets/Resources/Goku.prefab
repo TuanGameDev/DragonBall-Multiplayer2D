@@ -2433,7 +2433,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1.5
+  m_Radius: 1
 --- !u!61 &1197173768788464565
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -2527,11 +2527,12 @@ MonoBehaviour:
   attackRange: 0.8
   attackDelay: 0.8
   warriorID: 0
-  criticalDamage: 5
-  criticalChance: 0.2
+  criticalDamage: 1
+  criticalChance: 0.5
   autoattackText: {fileID: 1170810327750033292}
   autoattackButton: {fileID: 4021438987732344634}
   currentTarget: {fileID: 0}
+  isAutoAttacking: 0
   attackButton: {fileID: 813973827897028950}
   cooldownAttack: {fileID: 1626270088777607709}
   attackcooldownText: {fileID: 3262342324944906253}
@@ -2591,6 +2592,10 @@ MonoBehaviour:
   upgradePopup: {fileID: 4362606237960079233}
   missionPopup: {fileID: 4812840929728891929}
   attackButton: {fileID: 4455484419880612173}
+  hpButton: {fileID: 2131042025551503966}
+  kiButton: {fileID: 7383046026442014921}
+  defButton: {fileID: 5496836215575139296}
+  crtButton: {fileID: 476076918190462753}
   controller: {fileID: 5549890971538962318}
 --- !u!114 &7754242831641612847
 MonoBehaviour:
@@ -6641,7 +6646,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 7368379882464835864}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5549890971538962318}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: Attack
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &2161902945633463568
 GameObject:
   m_ObjectHideFlags: 0
@@ -12920,7 +12937,7 @@ GameObject:
   - component: {fileID: 4774967023565584243}
   - component: {fileID: 3151667230903119550}
   - component: {fileID: 6331552187157688206}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14085,7 +14102,7 @@ GameObject:
   - component: {fileID: 3928618892600447250}
   - component: {fileID: 3627776911807094860}
   - component: {fileID: 3877653273500794032}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fixed Joystick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -14969,7 +14986,7 @@ GameObject:
   - component: {fileID: 1742430516487307403}
   - component: {fileID: 2637311218422881130}
   - component: {fileID: 2743793469896810432}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Level_10
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -16338,8 +16355,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5, y: -499}
-  m_SizeDelta: {x: 769.8284, y: 30}
+  m_AnchoredPosition: {x: 1.2214, y: -291}
+  m_SizeDelta: {x: 782.2714, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &1605306964552986161
 CanvasRenderer:
@@ -17285,7 +17302,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8302082458464525131}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}

@@ -842,8 +842,9 @@ MonoBehaviour:
   maxHP: 2000000
   healthBar: {fileID: 86246448240342215}
   curAttackerID: 0
-  xpToGive: 30000
+  xpToGive: 100000
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
+  itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 3580324815903892408}
   enemylevelText: {fileID: 9210472122808781540}
   hpText: {fileID: 2326632774059482963}

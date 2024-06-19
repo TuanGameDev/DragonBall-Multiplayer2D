@@ -1347,7 +1347,7 @@ CircleCollider2D:
   m_UsedByComposite: 0
   m_Offset: {x: 0, y: 0}
   serializedVersion: 2
-  m_Radius: 1.5
+  m_Radius: 1
 --- !u!61 &1197173768788464565
 BoxCollider2D:
   m_ObjectHideFlags: 0
@@ -1441,11 +1441,12 @@ MonoBehaviour:
   attackRange: 0.8
   attackDelay: 0.8
   warriorID: 0
-  criticalDamage: 5
-  criticalChance: 0.2
+  criticalDamage: 1
+  criticalChance: 0.5
   autoattackText: {fileID: 8494708750699359931}
   autoattackButton: {fileID: 5914295189760970253}
   currentTarget: {fileID: 0}
+  isAutoAttacking: 0
   attackButton: {fileID: 6123099996113057093}
   cooldownAttack: {fileID: 8308408314612349738}
   attackcooldownText: {fileID: 5231742816691976506}
@@ -1505,6 +1506,10 @@ MonoBehaviour:
   upgradePopup: {fileID: 6437858362376050358}
   missionPopup: {fileID: 2816557378714197294}
   attackButton: {fileID: 6343819431175856250}
+  hpButton: {fileID: 8668921575969223529}
+  kiButton: {fileID: 263760119175565822}
+  defButton: {fileID: 2996132051518456535}
+  crtButton: {fileID: 7153849533245490710}
   controller: {fileID: 5549890971538962318}
 --- !u!114 &7754242831641612847
 MonoBehaviour:
@@ -7152,7 +7157,7 @@ GameObject:
   - component: {fileID: 6005984690579095589}
   - component: {fileID: 6306370648932381051}
   - component: {fileID: 5768258226681638279}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Fixed Joystick
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -8940,8 +8945,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -5, y: -499}
-  m_SizeDelta: {x: 769.8284, y: 30}
+  m_AnchoredPosition: {x: 1.2214, y: -291}
+  m_SizeDelta: {x: 782.2714, y: 30}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!222 &8330528454178275078
 CanvasRenderer:
@@ -16194,7 +16199,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 8302082458464525131}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: AttackPoint
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -18740,7 +18745,7 @@ GameObject:
   - component: {fileID: 2853274892045182532}
   - component: {fileID: 5647568864599900041}
   - component: {fileID: 3603715859942604473}
-  m_Layer: 5
+  m_Layer: 6
   m_Name: Handle
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24363,7 +24368,19 @@ MonoBehaviour:
   m_TargetGraphic: {fileID: 260495361221797935}
   m_OnClick:
     m_PersistentCalls:
-      m_Calls: []
+      m_Calls:
+      - m_Target: {fileID: 5549890971538962318}
+        m_TargetAssemblyTypeName: PlayerController, Assembly-CSharp
+        m_MethodName: Attack
+        m_Mode: 1
+        m_Arguments:
+          m_ObjectArgument: {fileID: 0}
+          m_ObjectArgumentAssemblyTypeName: UnityEngine.Object, UnityEngine
+          m_IntArgument: 0
+          m_FloatArgument: 0
+          m_StringArgument: 
+          m_BoolArgument: 0
+        m_CallState: 2
 --- !u!1 &8781378013338150188
 GameObject:
   m_ObjectHideFlags: 0

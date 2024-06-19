@@ -722,7 +722,7 @@ MonoBehaviour:
   aim: {fileID: 4062970206140749298}
   enemyName: Majin Vegeta Ssj 2
   enemyLevel: Level 100
-  damage: 0
+  damage: 500
   chaseRange: 10
   attackRange: 2
   attackRate: 0.8
@@ -731,8 +731,9 @@ MonoBehaviour:
   maxHP: 50000000
   healthBar: {fileID: 3098100398253772125}
   curAttackerID: 0
-  xpToGive: 10000
+  xpToGive: 1000000
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
+  itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 3335170111356976244}
   enemylevelText: {fileID: 854447866634212047}
   hpText: {fileID: 5826364286778609668}
