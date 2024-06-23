@@ -40,6 +40,7 @@ public class PlayerSkill : MonoBehaviourPun
     public int baseLayerIndex;
     public Image cooldownSkill3;
     public TextMeshProUGUI skill3_Text;
+    public GameObject effectSSJ;
     [Header("Kỹ năng Ultimate")]
     public Image cooldownSkill4;
     public TextMeshProUGUI skill4_Text;
@@ -90,12 +91,10 @@ public class PlayerSkill : MonoBehaviourPun
     public void StopMove()
     {
         canMove = false;
-        controller.rb.gravityScale = 0;
     }
     public void StartMove()
     {
         canMove = true;
-        controller.rb.gravityScale = 20;
     }
     #endregion
     #region Skill 3
@@ -111,6 +110,7 @@ public class PlayerSkill : MonoBehaviourPun
             }
             StartCooldown("skill3", skill3Cooldown.Delay);
         }
+        effectSSJ.SetActive(true);
         controller.isAutoAttacking = false;
     }
     #endregion
@@ -129,6 +129,7 @@ public class PlayerSkill : MonoBehaviourPun
             controller.aim.SetLayerWeight(aimLayerIndex, 0f);
             StartCooldown("skill4", skill4Cooldown.Delay);
         }
+        controller.rb.gravityScale = 0;
         controller.isAutoAttacking = false;
     }
     public void Skill4Vegeta()
@@ -201,6 +202,7 @@ public class PlayerSkill : MonoBehaviourPun
     {
         SkillObject bulletScript = ultiObject.GetComponent<SkillObject>();
         bulletScript.speed = 0;
+        controller.rb.gravityScale = 10;
     }
     #endregion
     #endregion
@@ -228,13 +230,11 @@ public class PlayerSkill : MonoBehaviourPun
     void AimIdlePun()
     {
         controller.aim.Play("SSJ2_Idle");
-        controller.aim.Play("SSJ3_Idle");
     }
     [PunRPC]
     void AimIntroPun()
     {
         controller.aim.Play("SSJ2_Intro");
-        controller.aim.Play("SSJ3_Intro");
     }
     private void ReturnToBaseLayerAfterDelay(float delay)
     {
@@ -252,6 +252,7 @@ public class PlayerSkill : MonoBehaviourPun
         }
         controller.aim.Play(baseLayerIndex, 0, 0f);
         controller.aim.SetLayerWeight(aimLayerIndex, 0f);
+        effectSSJ.SetActive(false);
     }
     #region Cooldown Skill
     private void InitializeCooldowns()
@@ -335,20 +336,21 @@ public class PlayerSkill : MonoBehaviourPun
     #region Thay đổi hình dạng biến hình và cộng chỉ số
     void ChangeSkin()
     {
-        if (controller.playerLevel >= 1 && controller.playerLevel <= 5)
+        if (controller.playerLevel >= 1 && controller.playerLevel <= 100)
         {
             aimLayerIndex = 1;
             controller.aim.SetLayerWeight(aimLayerIndex, 1f);
+            effectSSJ.SetActive(true);
         }
-        else if (controller.playerLevel > 5 && controller.playerLevel <= 1000)
-        {
-            aimLayerIndex = 2;
-            controller.aim.SetLayerWeight(aimLayerIndex, 2f);
-        }
-        else
-        {
-            // Xử lý cho trường hợp khác (nếu cần)
-        }
+        /* else if (controller.playerLevel > 5 && controller.playerLevel <= 1000)
+         {
+             aimLayerIndex = 2;
+             controller.aim.SetLayerWeight(aimLayerIndex, 2f);
+         }
+         else
+         {
+             // Xử lý cho trường hợp khác (nếu cần)
+         }*/
     }
     #endregion
 }

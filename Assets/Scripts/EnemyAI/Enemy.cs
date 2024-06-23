@@ -39,7 +39,19 @@ public class Enemy : MonoBehaviourPun
     private bool isMine;
     public int xpToGive;
     [Header("Patrol")]
-    public bool isAttacking = false;
+    public int facingDirection = -1;
+    public LayerMask whatIsGround;
+    public float groundCheckDistance;
+    public float wallCheckDistance;
+    public Transform groundCheck;
+    public Transform wallCheck;
+    public bool wallDetected;
+    public bool groundDetected;
+    public float idleTime = 2;
+    public float idleTimeCounter;
+    public bool canMove = true;
+    public bool stopMove = false;
+    public bool aggresive;
     [Header("UI")]
     public GameObject damPopUp;
     public GameObject itemObject;
@@ -55,33 +67,18 @@ public class Enemy : MonoBehaviourPun
         photonView.RPC("UpdateHealthBar", RpcTarget.All, currentHP);
         enemynametagText.text = "" + enemyName;
         enemylevelText.text = "" + enemyLevel;
+        if (groundCheck == null)
+            groundCheck = transform;
+        if (wallCheck == null)
+            wallCheck = transform;
     }
     private void Update()
     {
-    /*    if (PhotonNetwork.InRoom && !isAttacking)
-        {
-            if (photonView.IsMine)
-            {
-                photonView.RPC("Patrol", RpcTarget.All);
-            }
-        }*/
-
         if (targetPlayer != null)
         {
             float dist = Vector2.Distance(transform.position, targetPlayer.transform.position);
-            float face = targetPlayer.transform.position.x - transform.position.x;
-
             if (photonView.IsMine)
             {
-                if (face > 0)
-                {
-                    photonView.RPC("FlipRight", RpcTarget.All);
-                }
-                else
-                {
-                    photonView.RPC("FlipLeft", RpcTarget.All);
-                }
-
                 if (dist < attackRange && Time.time - lastattackTime >= attackRate)
                 {
                     if (targetPlayer.currentHP <= 0)
@@ -93,34 +90,14 @@ public class Enemy : MonoBehaviourPun
                     {
                         Attack();
                     }
-                    photonView.RPC("ResetlocalScale", RpcTarget.All);
-                }
-                else if (dist > attackRange)
-                {
-                    Vector3 dir = targetPlayer.transform.position - transform.position;
-                    photonView.RPC("FlipRight", RpcTarget.All);
-                }
-                else
-                {
-                    rb.velocity = Vector2.zero;
-                    aim.SetBool("Move", false);
                 }
             }
         }
-
+        WalkAround();
+        CollisionChecks();
         DetectPlayer();
     }
     #region Di chuyển và Tấn Công
-    [PunRPC]
-    void FlipRight()
-    {
-        sr.flipX = false;
-    }
-    [PunRPC]
-    void FlipLeft()
-    {
-        sr.flipX = true;
-    }
     void Attack()
     {
         attackstop = false;
@@ -139,18 +116,18 @@ public class Enemy : MonoBehaviourPun
             {
                 if (dist > chaseRange)
                 {
-                    isAttacking = false;
                     targetPlayer = null;
                     aim.SetBool("Move", false);
                     rb.velocity = Vector2.zero;
+                    canMove = true;
                 }
             }
             else if (dist < chaseRange)
             {
-                isAttacking = true;
                 if (targetPlayer == null)
                 {
                     targetPlayer = player;
+                    canMove = false;
                 }
             }
         }
@@ -274,49 +251,50 @@ public class Enemy : MonoBehaviourPun
                 InfoPopup.SetActive(false);
             }
         }
-        transform.localScale = new Vector2(-Mathf.Sign(rb.velocity.x), transform.localScale.y);
     }
     #endregion
-    #region Patrol Enemy
-    [PunRPC]
-    void Patrol()
+    #region Patrol
+    public void WalkAround()
     {
-        if (isAttacking)
+        if (idleTimeCounter <= 0 && canMove)
         {
-            return;
-        }
-        if(targetPlayer)
-        {
-            return;
-        }
-        if (IsFacingRight())
-        {
+            rb.velocity = new Vector2(moveSpeed * facingDirection, rb.velocity.y);
             aim.SetBool("Move", true);
-            rb.velocity = new Vector2(moveSpeed, 0f);
         }
         else
         {
-            aim.SetBool("Move", true);
-            rb.velocity = new Vector2(-moveSpeed, 0f);
+            rb.velocity = new Vector2(0, 0);
+            aim.SetBool("Move", false);
+        }
+
+        idleTimeCounter -= Time.deltaTime;
+        if (wallDetected || !groundDetected)
+        {
+            idleTimeCounter = idleTime;
+            Flip();
         }
     }
-    private bool IsFacingRight()
+    public void Flip()
     {
-        return transform.localScale.x > 0f;
+        facingDirection = facingDirection * -1;
+        transform.Rotate(0, 180, 0);
     }
-    [PunRPC]
-    void ResetlocalScale()
+    public void CollisionChecks()
     {
-        transform.localScale = new Vector2(1f, transform.localScale.y);
+        groundDetected = Physics2D.Raycast(groundCheck.position, Vector2.down, groundCheckDistance, whatIsGround);
+        wallDetected = Physics2D.Raycast(wallCheck.position, Vector2.right * facingDirection, wallCheckDistance, whatIsGround);
     }
     #endregion
     #region Gizmos
-    private void OnDrawGizmosSelected()
+    private void OnDrawGizmos()
     {
         Gizmos.color = Color.white;
         Gizmos.DrawWireSphere(transform.position, chaseRange);
         Gizmos.color = Color.red;
         Gizmos.DrawWireSphere(transform.position, attackRange);
+        if (groundCheck != null)
+            Gizmos.DrawLine(groundCheck.position, new Vector2(groundCheck.position.x, groundCheck.position.y - groundCheckDistance));
+        Gizmos.DrawLine(wallCheck.position, new Vector2(wallCheck.position.x + wallCheckDistance * facingDirection, wallCheck.position.y));
     }
     #endregion
 }

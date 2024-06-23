@@ -117,6 +117,8 @@ Transform:
   m_ConstrainProportionsScale: 0
   m_Children:
   - {fileID: 5501718504855688547}
+  - {fileID: 8043240381025677156}
+  - {fileID: 4642061099507829769}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!212 &8216639585318487044
@@ -162,7 +164,7 @@ SpriteRenderer:
   m_SortingOrder: 1
   m_Sprite: {fileID: 21300000, guid: 84ef0de755a7ff549b4618204b30671f, type: 3}
   m_Color: {r: 1, g: 1, b: 1, a: 1}
-  m_FlipX: 0
+  m_FlipX: 1
   m_FlipY: 0
   m_DrawMode: 0
   m_Size: {x: 3.68, y: 3.64}
@@ -234,7 +236,7 @@ BoxCollider2D:
   m_SpriteTilingProperty:
     border: {x: 0, y: 0, z: 0, w: 0}
     pivot: {x: 0.5, y: 0.5}
-    oldSize: {x: 3.68, y: 3.64}
+    oldSize: {x: 2.3, y: 2.275}
     newSize: {x: 3.68, y: 3.64}
     adaptiveTilingThreshold: 0.5
     drawMode: 0
@@ -292,7 +294,21 @@ MonoBehaviour:
   healthBar: {fileID: 7114398092303919975}
   curAttackerID: 0
   xpToGive: 100000
-  isAttacking: 0
+  facingDirection: -1
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 256
+  groundCheckDistance: 2
+  wallCheckDistance: 2
+  groundCheck: {fileID: 8043240381025677156}
+  wallCheck: {fileID: 4642061099507829769}
+  wallDetected: 0
+  groundDetected: 0
+  idleTime: 2
+  idleTimeCounter: 0
+  canMove: 1
+  stopMove: 1
+  aggresive: 0
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
   itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 7720669245702346058}
@@ -469,6 +485,37 @@ MonoBehaviour:
   m_BlockingMask:
     serializedVersion: 2
     m_Bits: 4294967295
+--- !u!1 &3276641731782804437
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 8043240381025677156}
+  m_Layer: 7
+  m_Name: GroundCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &8043240381025677156
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 3276641731782804437}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.08, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9143210145781950728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &4226969376373902661
 GameObject:
   m_ObjectHideFlags: 0
@@ -1111,6 +1158,37 @@ MonoBehaviour:
   m_hasFontAssetChanged: 0
   m_baseMaterial: {fileID: 0}
   m_maskOffset: {x: 0, y: 0, z: 0, w: 0}
+--- !u!1 &8265836322467549517
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4642061099507829769}
+  m_Layer: 7
+  m_Name: WalkCheck
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4642061099507829769
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 8265836322467549517}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: -1.06, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 9143210145781950728}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &9176546556182088951
 GameObject:
   m_ObjectHideFlags: 0

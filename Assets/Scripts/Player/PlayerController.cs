@@ -37,7 +37,7 @@ public class PlayerController : MonoBehaviourPun
     [Header("Tự động Tấn Công")]
     public TextMeshProUGUI autoattackText;
     public Button autoattackButton;
-    public Transform currentTarget;
+    private Transform currentTarget;
     public bool isAutoAttacking = false;
     [Header("Tấn Công và SkillCooldown")]
     public Button attackButton;
@@ -53,6 +53,9 @@ public class PlayerController : MonoBehaviourPun
     [Header("Di chuyển và Nhảy")]
     public Joystick joystick;
     public int moveSpeed;
+    public float jumpFore;
+    public bool isGrounded;
+    private bool isJumpButtonPressed = false;
     public bool faceRight = false;
     public bool dead;
     [Header("Vàng và Kim Cương")]
@@ -78,7 +81,7 @@ public class PlayerController : MonoBehaviourPun
     public GameObject damPopUp;
     [Header("Hồi Sinh")]
     public GameObject revivalButton;
-    [Header("Scripts")]
+    [Header("Singleton")]
     public PlayerUpGrade _playerUpgrade;
     public PlayerSkill _playerSkill;
     public PlayerInfomation _playerinfomation;
@@ -154,19 +157,19 @@ public class PlayerController : MonoBehaviourPun
         if (player.IsLocal)
             me = this;
     }
-    void Start()
+    public void Start()
     {
         currentHP = maxHP;
         SetHashes();
-        attackButton.onClick.AddListener(HandleAttackButtonClick);
-        autoattackButton.onClick.AddListener(ToggleAutoAttack);
+        //attackButton.onClick.AddListener(HandleAttackButtonClick);
+        //autoattackButton.onClick.AddListener(ToggleAutoAttack);
         if (!photonView.IsMine)
         {
             playerHUD.enabled = false;
             hoisinhCV.enabled = false;
         }
     }
-    void Update()
+    public void Update()
     {
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
         UpdateLevel(currentExp, maxExp, playerLevel);
@@ -174,33 +177,28 @@ public class PlayerController : MonoBehaviourPun
         UpdateDiamond(diamond);
         if (!photonView.IsMine)
             return;
-        AutoAttack();
+        MoveCharacter();
+        Jump();
     }
-    #region Di chuyển
+    #region Di chuyển + Nhảy
     public void MoveCharacter()
     {
-        if(!dead)
+        if (!dead && _playerSkill.canMove)
         {
-            float x, y;
-            x = joystick.Horizontal;
-            y = joystick.Vertical;
-            MoveJoystick(x, y);
-        }
-    }
-    void MoveJoystick(float x, float y)
-    {
-        if (!dead&&_playerSkill.canMove)
-        {
-            rb.velocity = new Vector2(x * moveSpeed, y * moveSpeed);
-
+            float x = joystick.Horizontal;
+            float y = joystick.Vertical;
+            Vector2 newMoveDirection = new Vector2(x * moveSpeed, y * moveSpeed);
+            Vector2 deltaMove = newMoveDirection - rb.velocity;
+            rb.velocity += deltaMove * Time.deltaTime * 10f;
+            aim.SetFloat("yVelocity",rb.velocity.y);
             if (x != 0 || y != 0)
             {
                 aim.SetBool("Move", true);
-                if (x > 0 && !faceRight)
+                if (x > 0)
                 {
                     photonView.RPC("FlipRight", RpcTarget.All);
                 }
-                else if (x < 0 && faceRight)
+                else
                 {
                     photonView.RPC("FlipLeft", RpcTarget.All);
                 }
@@ -225,6 +223,25 @@ public class PlayerController : MonoBehaviourPun
         faceRight = false;
         attackPoint.localPosition = new Vector3(-Mathf.Abs(attackPoint.localPosition.x), attackPoint.localPosition.y, attackPoint.localPosition.z);
     }
+    private void OnCollisionEnter2D(Collision2D collision)
+    {
+        isGrounded = true;
+        isJumpButtonPressed = false;
+        aim.SetBool("isJumping", !isGrounded);
+    }
+    void Jump()
+    {
+        if (isGrounded && isJumpButtonPressed)
+        {
+            rb.velocity = new Vector2(rb.velocity.x, jumpFore);
+            isGrounded = false;
+            aim.SetBool("isJumping", !isGrounded);
+        }
+    }
+    public void OnJumpButtonPressed()
+    {
+        isJumpButtonPressed = true;
+    }
     #endregion
     #region Tấn Công và Skill
     public void HandleAttackButtonClick()
@@ -238,27 +255,21 @@ public class PlayerController : MonoBehaviourPun
     }
     public void Attack()
     {
-        if (currentTarget != null)
+        lastAttackTime = Time.time;
+        int layerMask = ~(1 << LayerMask.NameToLayer("Player"));
+        RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.forward, attackRange, layerMask);
+
+        initializeAttack(id, photonView.IsMine);
+
+        if (hit.collider != null && photonView.IsMine)
         {
-            lastAttackTime = Time.time;
-
-            // Sử dụng LayerMask để chỉ lấy đối tượng thuộc lớp "Enemy"
-            int layerMask = ~(1 << LayerMask.NameToLayer("Player"));
-            RaycastHit2D hit = Physics2D.Raycast(attackPoint.position, transform.forward, attackRange, layerMask);
-
-            initializeAttack(id, photonView.IsMine);
-
-            if (hit.collider != null && photonView.IsMine)
+            GameObject hitObject = hit.collider.gameObject;
+            if (hitObject.CompareTag("Enemy"))
             {
-                GameObject hitObject = hit.collider.gameObject;
-                if (hitObject.CompareTag("Enemy"))
-                {
-                    DealDamage(hitObject);
-                }
-                aim.SetTrigger("Attack");
-                aim.SetBool("Move", false);
+                DealDamage(hitObject);
             }
         }
+        aim.SetTrigger("Attack");
     }
 
     private void DealDamage(GameObject enemyObject)
@@ -303,7 +314,7 @@ public class PlayerController : MonoBehaviourPun
     }
     #endregion
     #region Tự động Attack
-    void AutoAttack()
+   /* void AutoAttack()
     {
         if (isAutoAttacking)
         {
@@ -359,26 +370,22 @@ public class PlayerController : MonoBehaviourPun
         {
             Vector2 targetPosition = currentTarget.position - (transform.position - currentTarget.position).normalized * attackRange;
             transform.position = Vector2.MoveTowards(transform.position, targetPosition, moveSpeed * Time.deltaTime);
-            if (targetPosition.x > transform.position.x)
+            if (targetPosition.x > transform.position.x && !faceRight)
             {
-                if (!faceRight)
-                {
-                    photonView.RPC("FlipRight", RpcTarget.All);
-                    aim.SetBool("Move", true);
-                }
+                photonView.RpcSecure("FlipRight", RpcTarget.All, false);
+                faceRight = true;
+                aim.SetBool("Move", true);
             }
-            else if (targetPosition.x < transform.position.x)
+            else if (targetPosition.x < transform.position.x && faceRight)
             {
-                if (faceRight)
-                {
-                    photonView.RPC("FlipLeft", RpcTarget.All);
-                    aim.SetBool("Move", true);
-                }
+                photonView.RpcSecure("FlipLeft", RpcTarget.All, false);
+                faceRight = false;
+                aim.SetBool("Move", true);
             }
         }
     }
     [PunRPC]
-     void FindNearestEnemy()
+    void FindNearestEnemy()
     {
         GameObject[] enemyObjects = GameObject.FindGameObjectsWithTag("Enemy");
 
@@ -397,10 +404,8 @@ public class PlayerController : MonoBehaviourPun
                 nearestTarget = enemyTransform;
             }
         }
-
         currentTarget = nearestTarget;
-
-        if (currentTarget != null)
+        if (nearestTarget != null)
         {
             aim.SetBool("Move", true);
         }
@@ -414,8 +419,6 @@ public class PlayerController : MonoBehaviourPun
         isAutoAttacking = !isAutoAttacking;
         if(isAutoAttacking)
         {
-            aim.SetBool("Move", true);
-            rb.gravityScale = 0f;
             messageText.color = Color.yellow;
             messageText.text = " On auto Tấn công ";
             StartCoroutine(HideMessageAfterDelay(3));
@@ -423,14 +426,13 @@ public class PlayerController : MonoBehaviourPun
         if (!isAutoAttacking)
         {
             currentTarget = null;
-            rb.gravityScale = 20f;
             aim.ResetTrigger("Attack");
             messageText.color = Color.red;
             messageText.text = " Off auto tấn công ";
             StartCoroutine(HideMessageAfterDelay(3));
           _playerSkill.canMove = true;
         }
-    }
+    }*/
     #endregion
     #region Level và XP
     public void SetHashes()
@@ -578,7 +580,7 @@ public class PlayerController : MonoBehaviourPun
         revivalButton.SetActive(false);
         UpdateHealthSlider(currentHP);
         UpdateHpText(currentHP, maxHP, currentMP, maxMP);
-        photonView.RPC("SetCurrentHP", RpcTarget.All, maxHP,"Idle");
+        photonView.RPC("SetCurrentHP", RpcTarget.All, maxHP,"Move");
         photonView.RPC("UpdateHealthSlider", RpcTarget.All,currentHP);
     }
 
