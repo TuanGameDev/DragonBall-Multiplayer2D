@@ -1,4 +1,3 @@
-
 DragonBall Multiplayer
 Ages: 16+
 
