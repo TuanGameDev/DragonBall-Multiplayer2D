@@ -22,7 +22,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
     public GameObject nameInput;
 
     [Header("Popup")]
-    public GameObject tabMain;
     public GameObject tabRooms;
     public GameObject tabCreate;
     public GameObject buttonRoom;
@@ -30,7 +29,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
 
     public GameObject networkManagerPopup;
     public GameObject loadingbarPopup;
-    public GameObject hanhtinhPopup;
 
     [Header("Map")]
     public MapData[] maps;
@@ -50,7 +48,6 @@ public class NetworkManager : MonoBehaviourPunCallbacks
             playerName = PlayerPrefs.GetString("Name");
             PhotonNetwork.NickName = playerName;
             nameInput.SetActive(false);
-            hanhtinhPopup.SetActive(false);
             playerNameText.text = playerName;
         }
         else

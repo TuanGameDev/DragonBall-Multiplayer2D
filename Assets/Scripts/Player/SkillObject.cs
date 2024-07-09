@@ -7,7 +7,6 @@ using Unity.Burst.CompilerServices;
 public class SkillObject : MonoBehaviourPun
 {
     public float speed;
-    public float destroyObject;
     public Vector2 moveDirection;
     public Rigidbody2D rb;
     public int damage;
@@ -15,17 +14,18 @@ public class SkillObject : MonoBehaviourPun
     private int attackId;
     private bool isMine;
     public Transform target;
-    void Start()
+
+    private void Start()
     {
         if (PlayerPrefs.HasKey("DamageMax"))
         {
             damage = PlayerPrefs.GetInt("DamageMax") * increaseAttack;
         }
         rb = GetComponent<Rigidbody2D>();
-        Invoke("DestroyObject", destroyObject);
+        Invoke("DestroyObject",1);
     }
 
-    void Update()
+    private void Update()
     {
         if (target != null)
         {
@@ -41,7 +41,10 @@ public class SkillObject : MonoBehaviourPun
             DealDamage(other.gameObject);
         }
     }
-
+    void DestroyObject()
+    {
+        Destroy(gameObject);
+    }
     private void DealDamage(GameObject enemyObject)
     {
         Enemy enemy = enemyObject.GetComponent<Enemy>();
@@ -54,11 +57,6 @@ public class SkillObject : MonoBehaviourPun
         {
             boss.photonView.RPC("TakeDamage", RpcTarget.All, this.attackId, damage);
         }
-    }
-    [PunRPC]
-    void DestroyObject()
-    {
-        Destroy(gameObject);
     }
     public void Initialized(int attackId, bool isMine)
     {

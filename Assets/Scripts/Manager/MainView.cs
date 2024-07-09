@@ -8,6 +8,8 @@ public class MainView : MonoBehaviour
     public GameObject severPopup;
     public GameObject createseverPopup;
     public GameObject listseverPopup;
+    public GameObject loginPopup;
+    public GameObject selectionPopup;
     public void ShowSeverPopup()
     {
         severPopup.SetActive(true);
@@ -21,5 +23,10 @@ public class MainView : MonoBehaviour
     {
         createseverPopup.SetActive(true);
         listseverPopup.SetActive(false);
+    }
+    public void ShowLoginPopup()
+    {
+        loginPopup.SetActive(true);
+        selectionPopup.SetActive(false);
     }
 }

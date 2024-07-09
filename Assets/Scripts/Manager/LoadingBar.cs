@@ -9,6 +9,7 @@ public class LoadingBar : MonoBehaviour
 {
     [Header("LoadingBar")]
     public GameObject loadingbarPopup;
+    public GameObject playerselectionPopup;
     public TextMeshProUGUI loadingText;
     public Slider loadingSlider;
     public float loadSpeed = 0.5f;
@@ -26,11 +27,10 @@ public class LoadingBar : MonoBehaviour
             if (targetProgress >= 1f)
             {
                 loadingbarPopup.SetActive(false);
-               // NetworkManager.networkmanager.JoinServer();
+                playerselectionPopup.SetActive(true);
             }
         }
-
-        loadingText.text = " Loading:... " + (loadingSlider.value * 100f).ToString("F0") + "%";
+        loadingText.text = "Loading..." + (loadingSlider.value * 100f).ToString("F0") + "%";
     }
 
     public void SetProgress(float progress)

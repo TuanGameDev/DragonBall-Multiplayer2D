@@ -70,12 +70,22 @@ public class PlayerSkill : MonoBehaviourPun
             GameObject bulletObj = Instantiate(kameRight, controller.attackPoint.transform.position, Quaternion.identity);
             SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+            GameObject nearestEnemy = FindNearestEnemy();
+            if (nearestEnemy != null)
+            {
+                bulletScript.target = nearestEnemy.transform;
+            }
         }
         else
         {
             GameObject bulletObj = Instantiate(kameLeft, controller.attackPoint.position, Quaternion.identity);
             SkillObject bulletScript = bulletObj.GetComponent<SkillObject>();
             bulletScript.Initialized(controller.id, controller.photonView.IsMine);
+            GameObject nearestEnemy = FindNearestEnemy();
+            if (nearestEnemy != null)
+            {
+                bulletScript.target = nearestEnemy.transform;
+            }
         }
     }
     public void Skill2()
@@ -342,15 +352,15 @@ public class PlayerSkill : MonoBehaviourPun
             controller.aim.SetLayerWeight(aimLayerIndex, 1f);
             effectSSJ.SetActive(true);
         }
-        /* else if (controller.playerLevel > 5 && controller.playerLevel <= 1000)
-         {
-             aimLayerIndex = 2;
-             controller.aim.SetLayerWeight(aimLayerIndex, 2f);
-         }
-         else
-         {
-             // Xử lý cho trường hợp khác (nếu cần)
-         }*/
+        else if (controller.playerLevel > 5 && controller.playerLevel <= 1000)
+        {
+            aimLayerIndex = 2;
+            controller.aim.SetLayerWeight(aimLayerIndex, 2f);
+        }
+        else
+        {
+            // Xử lý cho trường hợp khác (nếu cần)
+        }
     }
     #endregion
 }

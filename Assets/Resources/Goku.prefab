@@ -614,7 +614,7 @@ GameObject:
   - component: {fileID: 7531096529925982279}
   - component: {fileID: 8180724808408127137}
   - component: {fileID: 4950182206865917148}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: PlayerNameTag
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -21547,7 +21547,7 @@ GameObject:
   - component: {fileID: 2568966731717879233}
   - component: {fileID: 6455349354541093696}
   - component: {fileID: 2778665578449989260}
-  - component: {fileID: 7738858050243444103}
+  - component: {fileID: 1131519555829493293}
   m_Layer: 6
   m_Name: Goku
   m_TagString: Player
@@ -21918,7 +21918,7 @@ MonoBehaviour:
   observableSearch: 2
   ObservedComponents:
   - {fileID: 2778665578449989260}
-  - {fileID: 7738858050243444103}
+  - {fileID: 1131519555829493293}
   sceneViewId: 0
   InstantiationId: 0
   isRuntimeInstantiated: 0
@@ -21935,10 +21935,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_SynchronizePosition: 1
-  m_SynchronizeRotation: 1
+  m_SynchronizeRotation: 0
   m_SynchronizeScale: 1
   m_UseLocal: 1
---- !u!114 &7738858050243444103
+--- !u!114 &1131519555829493293
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -21979,8 +21979,6 @@ MonoBehaviour:
     LayerIndex: 0
   - SynchronizeType: 1
     LayerIndex: 1
-  - SynchronizeType: 1
-    LayerIndex: 2
 --- !u!1 &8035362204096814894
 GameObject:
   m_ObjectHideFlags: 0
@@ -24533,7 +24531,7 @@ GameObject:
   - component: {fileID: 3362616173652688421}
   - component: {fileID: 9217972063930165827}
   - component: {fileID: 2959850063143375074}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: PlayerHUD
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -24702,7 +24700,7 @@ GameObject:
   - component: {fileID: 5659312986981117119}
   - component: {fileID: 2890257042547940053}
   - component: {fileID: 4555352473668491432}
-  m_Layer: 6
+  m_Layer: 0
   m_Name: EffectSSJ
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -25785,6 +25783,10 @@ PrefabInstance:
     - target: {fileID: 4891126821426170049, guid: 91da6215c5b3d4d4c9ed10d2b969616b, type: 3}
       propertyPath: m_Name
       value: HoisinhCV
+      objectReference: {fileID: 0}
+    - target: {fileID: 4891126821426170049, guid: 91da6215c5b3d4d4c9ed10d2b969616b, type: 3}
+      propertyPath: m_Layer
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8065233115288005379, guid: 91da6215c5b3d4d4c9ed10d2b969616b, type: 3}
       propertyPath: m_Pivot.x

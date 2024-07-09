@@ -292,7 +292,21 @@ MonoBehaviour:
   healthBar: {fileID: 7114398092303919975}
   curAttackerID: 0
   xpToGive: 200
-  isAttacking: 0
+  facingDirection: -1
+  whatIsGround:
+    serializedVersion: 2
+    m_Bits: 0
+  groundCheckDistance: 0
+  wallCheckDistance: 0
+  groundCheck: {fileID: 0}
+  wallCheck: {fileID: 0}
+  wallDetected: 0
+  groundDetected: 0
+  idleTime: 2
+  idleTimeCounter: 0
+  canMove: 1
+  stopMove: 0
+  aggresive: 0
   damPopUp: {fileID: 3890343362428162250, guid: 291b7044460ffe84b89420cac76b6087, type: 3}
   itemObject: {fileID: 8303163113316352651, guid: dcbc7f00aa006de4ca6bb12775ca591c, type: 3}
   enemynametagText: {fileID: 7720669245702346058}

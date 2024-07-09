@@ -185,7 +185,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   speed: 0
-  destroyObject: 2
   moveDirection: {x: 0, y: 0}
   rb: {fileID: 3265506517074087434}
   damage: 1000

@@ -139,8 +139,8 @@ TextureImporter:
       name: Skill_0
       rect:
         serializedVersion: 2
-        x: 82
-        y: 228
+        x: 2
+        y: 161
         width: 117
         height: 116
       alignment: 0
@@ -160,8 +160,8 @@ TextureImporter:
       name: Skill_1
       rect:
         serializedVersion: 2
-        x: 250
-        y: 228
+        x: 170
+        y: 161
         width: 116
         height: 116
       alignment: 0
@@ -181,10 +181,10 @@ TextureImporter:
       name: Skill_2
       rect:
         serializedVersion: 2
-        x: 416
-        y: 226
+        x: 336
+        y: 159
         width: 116
-        height: 121
+        height: 120
       alignment: 0
       pivot: {x: 0, y: 0}
       border: {x: 0, y: 0, z: 0, w: 0}
@@ -202,8 +202,8 @@ TextureImporter:
       name: Skill_3
       rect:
         serializedVersion: 2
-        x: 582
-        y: 228
+        x: 502
+        y: 161
         width: 116
         height: 116
       alignment: 0
@@ -223,9 +223,9 @@ TextureImporter:
       name: Skill_4
       rect:
         serializedVersion: 2
-        x: 748
-        y: 228
-        width: 121
+        x: 668
+        y: 161
+        width: 116
         height: 116
       alignment: 0
       pivot: {x: 0, y: 0}
@@ -244,8 +244,8 @@ TextureImporter:
       name: Skill_5
       rect:
         serializedVersion: 2
-        x: 83
-        y: 70
+        x: 3
+        y: 3
         width: 116
         height: 116
       alignment: 0
@@ -265,8 +265,8 @@ TextureImporter:
       name: Skill_6
       rect:
         serializedVersion: 2
-        x: 249
-        y: 69
+        x: 169
+        y: 2
         width: 117
         height: 118
       alignment: 0
@@ -286,8 +286,8 @@ TextureImporter:
       name: Skill_7
       rect:
         serializedVersion: 2
-        x: 416
-        y: 70
+        x: 336
+        y: 3
         width: 116
         height: 116
       alignment: 0

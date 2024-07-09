@@ -1,3 +1,4 @@
+﻿using System;
 using System.Collections;
 using TMPro;
 using UnityEngine;
@@ -7,12 +8,17 @@ using UnityEngine.UI;
 public class PlayerSelection : MonoBehaviour
 {
     [Header("PlayerSelection")]
+    public TextMeshProUGUI characterNameText;
+    public TextMeshProUGUI informationText;
+    public string[] playerNames;
+    public string[] information;
     public string playerPrefabName;
     public GameObject[] playerModel;
-    public int selectedCharacter=0;
+    public int currentPlayerIndex = 0;
     [Header("Popup")]
     public GameObject playerPopup;
     public static PlayerSelection playerselection;
+
     private void Awake()
     {
         playerselection = this;
@@ -21,32 +27,56 @@ public class PlayerSelection : MonoBehaviour
     {
         if (PlayerPrefs.HasKey("SelectedCharacter"))
         {
-            selectedCharacter = PlayerPrefs.GetInt("SelectedCharacter");
-            playerPrefabName = playerModel[selectedCharacter].GetComponent<PlayerModelName>().playerName;
+            currentPlayerIndex = PlayerPrefs.GetInt("SelectedCharacter");
+            playerPrefabName = playerModel[currentPlayerIndex].GetComponent<PlayerModelName>().playerName;
             playerPopup.SetActive(false);
         }
         else
         {
-            selectedCharacter = 0;
-            playerPrefabName = playerModel[selectedCharacter].GetComponent<PlayerModelName>().playerName;
+            currentPlayerIndex = 0;
+            playerPrefabName = playerModel[currentPlayerIndex].GetComponent<PlayerModelName>().playerName;
         }
+
         foreach (GameObject player in playerModel)
         {
             player.SetActive(false);
         }
-        playerModel[selectedCharacter].SetActive(true);
+        playerModel[currentPlayerIndex].SetActive(true);
+        characterNameText.text ="Tên nhân vật: "+playerNames[currentPlayerIndex];
+        informationText.text = "Thông tin: " + information[currentPlayerIndex];
     }
-    public void IconClick(int characterIndex)
+
+    public void ChangeNext()
     {
-        PlayerPrefs.SetInt("SelectedCharacter", characterIndex);
+        currentPlayerIndex++;
+        if (currentPlayerIndex >= playerModel.Length)
+            currentPlayerIndex = 0;
+        characterNameText.text = "Tên nhân vật: " + playerNames[currentPlayerIndex];
+        informationText.text = "Thông tin: " + information[currentPlayerIndex];
+        UpdateSelectedCharacter();
+    }
+
+    public void ChangeBack()
+    {
+        currentPlayerIndex--;
+        if (currentPlayerIndex < 0)
+            currentPlayerIndex = playerModel.Length - 1;
+        characterNameText.text = "Tên nhân vật: " + playerNames[currentPlayerIndex];
+        informationText.text = "Thông tin: " + information[currentPlayerIndex];
+        UpdateSelectedCharacter();
+    }
+
+    private void UpdateSelectedCharacter()
+    {
+        PlayerPrefs.SetInt("SelectedCharacter", currentPlayerIndex);
         foreach (GameObject player in playerModel)
         {
             player.SetActive(false);
         }
-        selectedCharacter = characterIndex;
-        playerPrefabName = playerModel[selectedCharacter].GetComponent<PlayerModelName>().playerName;
-        playerModel[selectedCharacter].SetActive(true);
+        playerModel[currentPlayerIndex].SetActive(true);
+        playerPrefabName = playerModel[currentPlayerIndex].GetComponent<PlayerModelName>().playerName;
     }
+
     public void DeleteSave()
     {
         PlayerPrefs.DeleteKey("SelectedCharacter");
