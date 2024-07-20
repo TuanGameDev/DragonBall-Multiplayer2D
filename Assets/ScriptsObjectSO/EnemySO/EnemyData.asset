@@ -10,12 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 3217f146b8459ff43b01397229e714fe, type: 3}
-  m_Name: Hero Legend
+  m_Name: EnemyData
   m_EditorClassIdentifier: 
-  heroName: The Myth
   heroID: 0
-  heroLevel: 0
-  currentExp: 0
-  maxExp: 500
-  currentHp: 100
-  maxHp: 100
+  heroLevel: 1
+  moveSpeed: 3
+  BaseStat:
+    StatForAction:
+      BaseHp: 1000
+    StatForAttack:
+      BaseAttack: 0
+      BaseDef: 0
+    ExpToLevelUp: 0

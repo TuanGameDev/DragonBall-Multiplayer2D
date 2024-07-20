@@ -7,17 +7,10 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
     public class HeroSO : ScriptableObject
     {
         [Header("HeroData")]
-        public string heroName;
         public int heroID;
         public int heroLevel;
+        public float moveSpeed;
 
-        [Header("Hero Level")]
-        public int currentExp;
-        public int maxExp;
-
-        [Header("Hero Level")]
-        public int currentHp;
-        public int maxHp;
-
+        public CharacterStat BaseStat = new();
     }
 }
