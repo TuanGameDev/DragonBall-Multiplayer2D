@@ -9,12 +9,6 @@ EditorBuildSettings:
     path: Assets/Scenes/Main.unity
     guid: 58802a896828f3248865e9cc8de9c7f9
   - enabled: 1
-    path: Assets/Scenes/TraiDat.unity
-    guid: 2cda990e2423bbf4892e6590ba056729
-  - enabled: 1
-    path: Assets/Scenes/Namec.unity
-    guid: e3ddfd3829641be49af4efa22cb5dd3f
-  - enabled: 1
-    path: Assets/Scenes/Xayda.unity
-    guid: d7711ee0b9b5ba445ae747079855cc85
+    path: Assets/Scenes/Work.unity
+    guid: a3cc042b438cae74da79721c48a699fb
   m_configObjects: {}

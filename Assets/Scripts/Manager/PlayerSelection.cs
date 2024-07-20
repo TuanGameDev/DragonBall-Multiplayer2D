@@ -7,11 +7,6 @@ using UnityEngine.UI;
 
 public class PlayerSelection : MonoBehaviour
 {
-    [Header("PlayerSelection")]
-    public TextMeshProUGUI characterNameText;
-    public TextMeshProUGUI informationText;
-    public string[] playerNames;
-    public string[] information;
     public string playerPrefabName;
     public GameObject[] playerModel;
     public int currentPlayerIndex = 0;
@@ -42,8 +37,6 @@ public class PlayerSelection : MonoBehaviour
             player.SetActive(false);
         }
         playerModel[currentPlayerIndex].SetActive(true);
-        characterNameText.text ="Tên nhân vật: "+playerNames[currentPlayerIndex];
-        informationText.text = "Thông tin: " + information[currentPlayerIndex];
     }
 
     public void ChangeNext()
@@ -51,8 +44,6 @@ public class PlayerSelection : MonoBehaviour
         currentPlayerIndex++;
         if (currentPlayerIndex >= playerModel.Length)
             currentPlayerIndex = 0;
-        characterNameText.text = "Tên nhân vật: " + playerNames[currentPlayerIndex];
-        informationText.text = "Thông tin: " + information[currentPlayerIndex];
         UpdateSelectedCharacter();
     }
 
@@ -61,8 +52,6 @@ public class PlayerSelection : MonoBehaviour
         currentPlayerIndex--;
         if (currentPlayerIndex < 0)
             currentPlayerIndex = playerModel.Length - 1;
-        characterNameText.text = "Tên nhân vật: " + playerNames[currentPlayerIndex];
-        informationText.text = "Thông tin: " + information[currentPlayerIndex];
         UpdateSelectedCharacter();
     }
 

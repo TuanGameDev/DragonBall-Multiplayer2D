@@ -8,41 +8,43 @@ public enum PickupTypes
     Coin,
     Diamond,
 }
-
-public class PickUp : MonoBehaviourPun
+namespace HoangTuan.Scripts.Scriptable_Objects.Character
 {
-    public PickupTypes types;
-    public int value;
-
-    private void OnTriggerEnter2D(Collider2D collision)
+    public class PickUp : MonoBehaviourPun
     {
-        if (photonView.IsMine)
+        public PickupTypes types;
+        public int value;
+
+        private void OnTriggerEnter2D(Collider2D collision)
         {
-            if (collision.CompareTag("Player"))
+            if (photonView.IsMine)
             {
-                PlayerController player = collision.gameObject.GetComponent<PlayerController>();
-                if (player != null)
+                if (collision.CompareTag("Player"))
                 {
-                    if (types == PickupTypes.Coin)
+                    HeroController player = collision.gameObject.GetComponent<HeroController>();
+                    if (player != null)
                     {
-                        player.photonView.RPC("GetCoin", RpcTarget.All, value);
+                        if (types == PickupTypes.Coin)
+                        {
+                            player.photonView.RPC("GetCoin", RpcTarget.All, value);
+                        }
+                        else if (types == PickupTypes.Diamond)
+                        {
+                            player.photonView.RPC("Diamond", RpcTarget.All, value);
+                        }
+                        photonView.RPC("DestroyPickup", RpcTarget.All);
                     }
-                    else if (types == PickupTypes.Diamond)
-                    {
-                        player.photonView.RPC("Diamond", RpcTarget.All, value);
-                    }
-                    photonView.RPC("DestroyPickup", RpcTarget.All);
                 }
             }
         }
-    }
 
-    [PunRPC]
-    private void DestroyPickup()
-    {
-        if (photonView.IsMine)
+        [PunRPC]
+        private void DestroyPickup()
         {
-            PhotonNetwork.Destroy(gameObject);
+            if (photonView.IsMine)
+            {
+                PhotonNetwork.Destroy(gameObject);
+            }
         }
     }
 }

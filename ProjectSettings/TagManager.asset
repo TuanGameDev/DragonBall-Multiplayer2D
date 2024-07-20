@@ -4,22 +4,19 @@
 TagManager:
   serializedVersion: 2
   tags:
-  - Ground
-  - Enemy
-  - Bullet
-  - Coin
+  - Hero
   layers:
   - Default
   - TransparentFX
   - Ignore Raycast
-  - 
+  - Hero
   - Water
   - UI
-  - Player
-  - Enemy
-  - Ground
-  - Bullet
-  - Coin
+  - 
+  - 
+  - 
+  - 
+  - 
   - 
   - 
   - 

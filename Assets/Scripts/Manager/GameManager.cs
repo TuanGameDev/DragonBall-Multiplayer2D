@@ -34,7 +34,7 @@ public class GameManager : MonoBehaviourPunCallbacks
         {
             Transform spawnPoint = spawnPoints[Random.Range(0, spawnPoints.Length)];
             GameObject playerObject = PhotonNetwork.Instantiate(PlayerSelection.playerselection.playerPrefabName, spawnPoint.transform.position, Quaternion.identity);
-            playerObject.GetComponent<PhotonView>().RPC("InitializePlayer", RpcTarget.AllBuffered, PhotonNetwork.LocalPlayer);
+            playerObject.GetComponent<PhotonView>().RPC("InitializeHero", RpcTarget.AllBuffered, PhotonNetwork.LocalPlayer);
         }
     }
     public override void OnJoinedRoom()
