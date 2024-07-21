@@ -1,6 +1,9 @@
 ﻿using _Game.Scripts.Interfaces;
+using Photon.Pun;
+using Photon.Realtime;
 using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 namespace HoangTuan.Scripts.Scriptable_Objects.Character
 {
@@ -9,17 +12,7 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
         protected override void Start()
         {
             base.Start();
-        }
-        public override void TakeDamage(int amount)
-        {
-            base.TakeDamage(amount);
-        }
-
-        public override void Die()
-        {
-            base.Die();
-            // Thêm logic khi Enemy chết, ví dụ: hủy đối tượng
-            Destroy(gameObject);
+            _heroUI.UpdateInfo(_heroData.heroName, _heroData.heroLevel);
         }
     }
 }

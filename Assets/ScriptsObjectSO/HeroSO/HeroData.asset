@@ -12,13 +12,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3217f146b8459ff43b01397229e714fe, type: 3}
   m_Name: HeroData
   m_EditorClassIdentifier: 
-  heroID: 1
+  heroID: 0
   heroLevel: 1
   moveSpeed: 3
   BaseStat:
     StatForAction:
       BaseHp: 1000
     StatForAttack:
-      BaseAttack: 50
+      BaseAttack: 100
       BaseDef: 0
     ExpToLevelUp: 0

@@ -12,8 +12,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3217f146b8459ff43b01397229e714fe, type: 3}
   m_Name: EnemyData
   m_EditorClassIdentifier: 
+  heroName: Enemy
   heroID: 0
-  heroLevel: 1
+  heroLevel: 100
   moveSpeed: 3
   BaseStat:
     StatForAction:

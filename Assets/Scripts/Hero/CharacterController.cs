@@ -1,4 +1,4 @@
-using _Game.Scripts.Interfaces;
+﻿using _Game.Scripts.Interfaces;
 using Photon.Pun;
 using Photon.Realtime;
 using System;
@@ -32,76 +32,78 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
         [Header("Bool")]
         public bool dead;
         public bool faceRight = false;
-        public float lastAttackTime;
-
+        public int curAttackerID;
         protected virtual void Start()
         {
             CurrentStat.StatForAction.BaseHp = _heroData.BaseStat.StatForAction.BaseHp;
             CurrentStat.StatForAttack.BaseAttack = _heroData.BaseStat.StatForAttack.BaseAttack;
             _maxStat.SetEqual(CurrentStat.StatForAction);
-
-            _healthBarUI.SetHealthBar(CurrentStat.StatForAction.BaseHp, _maxStat.BaseHp, CurrentStat.StatForAction.BaseHp);
         }
 
         protected virtual void Update()
         {
-
+            UpdateHealthUI(CurrentStat.StatForAction.BaseHp);
         }
-
+        [PunRPC]
         public virtual void Attack()
         {
             if (AttackTarget == null) return;
             if (AttackTarget.GetComponent<IDamagable>() == null)
             {
-                Debug.Log($"Attack target {AttackTarget.name} not added IDamagable");
                 return;
             }
-            PerformDamage(AttackTarget.GetComponent<IDamagable>());
+            heroAim.SetTrigger("Attack");
+            photonView.RPC("PerformDamage", RpcTarget.All, AttackTarget._heroData.heroID, CurrentStat.StatForAttack.BaseAttack, _heroData.heroID);
         }
 
-        protected virtual void PerformDamage(IDamagable damagable)
+        [PunRPC]
+        protected virtual void PerformDamage(int targetHeroID, int damageAmount, int attackerID)
         {
-            if (damagable == null) return;
-            damagable.TakeDamage(CurrentStat.StatForAttack.BaseAttack);
+            CharacterController target = FindCharacterByHeroID(targetHeroID);
+            if (target != null && target is IDamagable damagable)
+            {
+                damagable.TakeDamage(damageAmount, attackerID);
+            }
         }
 
-
-        public virtual void TakeDamage(int amount)
+        private CharacterController FindCharacterByHeroID(int heroID)
+        {
+            foreach (var character in FindObjectsOfType<CharacterController>())
+            {
+                if (character._heroData.heroID == heroID)
+                {
+                    return character;
+                }
+            }
+            return null;
+        }
+        [PunRPC]
+        public virtual void TakeDamage(int amount, int attackerID)
         {
             if (_heroData == null)
             {
                 return;
             }
-
             CurrentStat.StatForAction.BaseHp -= amount;
-
+            curAttackerID = attackerID;
             if (_healthBarUI != null)
             {
                 _healthBarUI.SetHealthBar(CurrentStat.StatForAction.BaseHp, _maxStat.BaseHp, CurrentStat.StatForAction.BaseHp);
             }
 
-            // UIManager.Instance.GenerateFloatingText(Mathf.FloorToInt(amount).ToString(), transform);
             if (CurrentStat.StatForAction.BaseHp <= 0)
             {
                 Die();
             }
         }
-        protected CharacterController FindClosestEnemy(float range)
-        {
-            CharacterController closestEnemy = null;
-            float closestDistance = range;
 
-            foreach (CharacterController enemy in FindObjectsOfType<CharacterController>())
+        void UpdateHealthUI(int currentHp)
+        {
+            CurrentStat.StatForAction.BaseHp = currentHp;
+            if (_healthBarUI != null)
             {
-                if (enemy == this) continue;
-                float distance = Vector2.Distance(transform.position, enemy.transform.position);
-                if (distance < closestDistance)
-                {
-                    closestDistance = distance;
-                    closestEnemy = enemy;
-                }
+                _healthBarUI.SetHealthBar(CurrentStat.StatForAction.BaseHp, _maxStat.BaseHp, CurrentStat.StatForAction.BaseHp);
             }
-            return closestEnemy;
         }
         public void SetAttackTarget(CharacterController target)
         {
@@ -109,6 +111,7 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
         }
         public virtual void Die()
         {
+            heroAim.SetTrigger("Die");
             OnDie?.Invoke();
         }
     }

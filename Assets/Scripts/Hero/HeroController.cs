@@ -32,34 +32,6 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
             MoveCharacter();
             AttackBase();
         }
-        void AttackBase()
-        {
-            if (AttackTarget != null)
-            {
-                float distanceToTarget = Vector2.Distance(transform.position, AttackTarget.transform.position);
-                if (distanceToTarget > attackRange)
-                {
-                    AttackTarget = null;
-                }
-            }
-
-            if (Input.GetKeyDown(KeyCode.F) && canAttack)
-            {
-                CharacterController target = FindClosestEnemy(attackRange);
-                if (target != null)
-                {
-                    SetAttackTarget(target);
-                    Attack();
-                }
-            }
-        }
-        public override void Attack()
-        {
-            base.Attack();
-            StartCoroutine(AttackCooldown());
-            heroAim.SetTrigger("Attack");
-        }
-
         private IEnumerator AttackCooldown()
         {
             canAttack = false;
@@ -67,6 +39,7 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
             canAttack = true;
         }
         #region HERO
+        #region Move
         void MoveCharacter()
         {
             if (!dead)
@@ -111,6 +84,48 @@ namespace HoangTuan.Scripts.Scriptable_Objects.Character
             theScale.x = 1;
             _tranformHero.localScale = theScale;
         }
+        #endregion
+        #region Attack
+        void AttackBase()
+        {
+            if (AttackTarget != null)
+            {
+                float distanceToTarget = Vector2.Distance(transform.position, AttackTarget.transform.position);
+                if (distanceToTarget > attackRange)
+                {
+                    AttackTarget = null;
+                }
+            }
+
+            if (Input.GetKeyDown(KeyCode.F) && canAttack)
+            {
+                CharacterController target = FindClosestEnemy(attackRange);
+                if (target != null)
+                {
+                    SetAttackTarget(target);
+                    photonView.RPC("Attack", RpcTarget.All);
+                    StartCoroutine(AttackCooldown());
+                }
+            }
+        }
+        CharacterController FindClosestEnemy(float range)
+        {
+            CharacterController closestEnemy = null;
+            float closestDistance = range;
+
+            foreach (CharacterController enemy in FindObjectsOfType<CharacterController>())
+            {
+                if (enemy == this) continue;
+                float distance = Vector2.Distance(transform.position, enemy.transform.position);
+                if (distance < closestDistance)
+                {
+                    closestDistance = distance;
+                    closestEnemy = enemy;
+                }
+            }
+            return closestEnemy;
+        }
+        #endregion
         #endregion
         #region GIZMOS
         private void OnDrawGizmos()

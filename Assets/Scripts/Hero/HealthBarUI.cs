@@ -14,6 +14,6 @@ public class HealthBarUI : MonoBehaviourPun
     public void SetHealthBar(float value, float maxValue, int health)
     {
         _healthBar.fillAmount = value / maxValue;
-        _healthTxt.text = health.ToString("N0");
+        _healthTxt.text =health.ToString();
     }
 }
